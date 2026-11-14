@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>音频播放器 · AIGC 工具箱</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%237c6cff'/%3E%3Cstop offset='1' stop-color='%2322d3ee'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='url(%23g)'/%3E%3Cpath d='M20 14h28v8H20zM20 28h28v8H20zM20 42h18v8H20z' fill='white' opacity='.95'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="logo" href="../index.html">
+      <span class="logo-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 6h16M4 12h16M4 18h10"/>
+        </svg>
+      </span>
+      AIGC 工具箱
+    </a>
+    <span class="spacer"></span>
+    <a class="back-link" href="../index.html">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m15 18-6-6 6-6"/>
+      </svg>
+      返回首页
+    </a>
+  </header>
+
+  <main class="container">
+    <div class="audio-layout">
+      <!-- 左：正在播放 + 控制区 -->
+      <section class="card now-playing">
+        <div class="track-title" id="track-title">未在播放</div>
+        <div class="track-sub" id="track-sub">从右侧添加本地文件或粘贴网络链接开始播放</div>
+
+        <div class="disc-wrap">
+          <div class="disc" id="disc">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="2.2" fill="currentColor" stroke="none"/>
+              <circle cx="12" cy="12" r="5"/>
+              <circle cx="12" cy="12" r="9.2"/>
+            </svg>
+          </div>
+          <div class="hub"></div>
+        </div>
+
+        <canvas id="visualizer" height="90"></canvas>
+
+        <div class="audio-controls">
+          <div class="progress-row">
+            <span id="time-cur">0:00</span>
+            <input type="range" id="progress" min="0" max="100" value="0" step="0.1" aria-label="播放进度">
+            <span id="time-dur">0:00</span>
+          </div>
+
+          <div class="controls-row">
+            <button class="icon-btn" id="btn-prev" title="上一首">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg>
+            </button>
+            <button class="icon-btn big" id="btn-play" title="播放/暂停">
+              <svg id="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              <svg id="icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+            </button>
+            <button class="icon-btn" id="btn-next" title="下一首">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg>
+            </button>
+          </div>
+
+          <div class="secondary-row">
+            <button class="icon-btn" id="btn-mode" title="切换播放模式"></button>
+            <span class="mode-btn-label muted small" id="mode-label">列表循环</span>
+
+            <div class="vol-group">
+              <svg id="vol-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/>
+              </svg>
+              <input type="range" id="volume" min="0" max="100" value="100" aria-label="音量">
+            </div>
+
+            <select class="select-speed" id="speed" title="倍速">
+              <option value="0.5">0.5x</option>
+              <option value="0.75">0.75x</option>
+              <option value="1" selected>1.0x</option>
+              <option value="1.25">1.25x</option>
+              <option value="1.5">1.5x</option>
+              <option value="2">2x</option>
+            </select>
+          </div>
+
+          <div class="kbd-hint">
+            <span><kbd>空格</kbd> 播放/暂停</span>
+            <span><kbd>←</kbd> <kbd>→</kbd> 快退/快进 5s</span>
+            <span><kbd>↑</kbd> <kbd>↓</kbd> 音量</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 右：添加来源 + 播放列表 -->
+      <section class="card">
+        <div class="dropzone" id="dropzone">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5-5 5 5"/><path d="M12 5v13"/>
+          </svg>
+          <div class="dz-title">点击选择或拖入音频文件</div>
+          <div class="dz-sub">支持 MP3 / WAV / OGG / FLAC / M4A 等，可多选</div>
+        </div>
+        <input type="file" id="file-input" accept="audio/*,.mp3,.wav,.ogg,.flac,.m4a,.aac,.opus" multiple hidden>
+
+        <div class="url-bar">
+          <input type="text" id="url-input" placeholder="粘贴音频网络链接（https://…）" spellcheck="false">
+          <button class="btn btn-primary" id="btn-url">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14M13 6l6 6-6 6"/>
+            </svg>
+            播放链接
+          </button>
+        </div>
+
+        <div style="margin-top:18px; display:flex; align-items:center; justify-content:space-between;">
+          <strong style="font-size:14px;">播放列表</strong>
+          <button class="btn small" id="btn-clear" style="padding:5px 12px; font-size:12.5px;">清空</button>
+        </div>
+        <ul class="playlist" id="playlist"></ul>
+        <p class="muted small" id="playlist-empty" style="text-align:center; padding:18px 0;">列表为空，先添加一些音频吧</p>
+      </section>
+    </div>
+  </main>
+
+  <!-- 两个音频元素：local 用于本地文件（接入 Web Audio 可视化），remote 用于网络链接（直连输出避免跨域静音） -->
+  <audio id="audio-local" preload="metadata"></audio>
+  <audio id="audio-remote" preload="metadata"></audio>
+
+  <div id="toast-container"></div>
+  <script src="../js/utils.js"></script>
+  <script src="../js/audio-player.js"></script>
+</body>
+</html>

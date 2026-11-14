@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AIGC 工具箱 — 纯浏览器端运行的音频播放器、视频播放器与媒体小工具，文件不上传，隐私安全。">
+  <title>AIGC 工具箱</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%237c6cff'/%3E%3Cstop offset='1' stop-color='%2322d3ee'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='url(%23g)'/%3E%3Cpath d='M20 14h28v8H20zM20 28h28v8H20zM20 42h18v8H20z' fill='white' opacity='.95'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="logo" href="index.html">
+      <span class="logo-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 6h16M4 12h16M4 18h10"/>
+        </svg>
+      </span>
+      AIGC 工具箱
+    </a>
+    <span class="spacer"></span>
+    <span class="page-title small">纯浏览器运行 · 文件不上传</span>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <h1>AIGC 工具箱</h1>
+      <p>音频播放 · 视频播放 · 媒体小工具，全部在你的浏览器本地完成，无需安装、无需登录</p>
+    </section>
+
+    <section class="tool-grid">
+      <!-- 音频播放器 -->
+      <a class="tool-card" href="tools/audio.html">
+        <span class="icon-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 18V5l12-2v13"/>
+            <circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+          </svg>
+        </span>
+        <h2>音频播放器</h2>
+        <p>本地文件 / 网络链接，播放列表、倍速、循环模式，附带实时频谱可视化</p>
+        <span class="go">立即使用 →</span>
+      </a>
+
+      <!-- 视频播放器 -->
+      <a class="tool-card" href="tools/video.html">
+        <span class="icon-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="4" width="15" height="16" rx="2"/>
+            <path d="m22 8-5 4 5 4V8z"/>
+          </svg>
+        </span>
+        <h2>视频播放器</h2>
+        <p>自定义控制栏、倍速、画中画、全屏，支持视频截图与本地字幕加载</p>
+        <span class="go">立即使用 →</span>
+      </a>
+
+      <!-- 媒体信息 -->
+      <a class="tool-card" href="tools/media-info.html">
+        <span class="icon-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 3v18h18"/>
+            <path d="m7 15 4-6 4 3 5-8"/>
+          </svg>
+        </span>
+        <h2>媒体信息查看</h2>
+        <p>拖入音频 / 视频文件，快速查看时长、分辨率、码率、格式等详细信息</p>
+        <span class="go">立即使用 →</span>
+      </a>
+
+      <!-- 预留扩展位：新增工具时复制一张卡，改图标、标题、链接即可 -->
+      <div class="tool-card disabled">
+        <span class="icon-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3l1.9 5.8L20 10.6l-5 3.9 1.7 6L12 17l-4.7 3.5 1.7-6-5-3.9 6.1-1.8z"/>
+          </svg>
+        </span>
+        <h2>更多工具 · 敬请期待</h2>
+        <p>后续将陆续加入更多 AIGC 相关工具，敬请收藏本站</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    AIGC 工具箱 · 纯前端静态站点，可直接发布到 GitHub Pages / Vercel
+  </footer>
+</body>
+</html>
