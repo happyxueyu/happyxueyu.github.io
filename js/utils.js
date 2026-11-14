@@ -108,3 +108,15 @@ function isMediaFile(file) {
   if (file.type && /^(audio|video)\//.test(file.type)) return true;
   return /\.(mp3|wav|ogg|oga|m4a|aac|flac|opus|weba|mp4|webm|mkv|mov|avi|m4v|ogv)$/i.test(file.name);
 }
+
+/** 注册 Service Worker（PWA：可安装到手机桌面 + 离线访问） */
+(function registerServiceWorker() {
+  if (!("serviceWorker" in navigator) || !/^https?:$/.test(location.protocol)) return;
+  // utils.js 位于 js/ 目录，sw.js 始终在站点根目录
+  var swUrl = new URL("../sw.js", document.currentScript.src).href;
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register(swUrl).catch(function () {
+      /* 注册失败不影响站点正常使用 */
+    });
+  });
+})();
