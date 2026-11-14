@@ -59,6 +59,11 @@ npx serve .
 2. 在 `js/` 下新建对应脚本并引入
 3. 打开 `index.html`，复制一张 `tool-card` 卡片，改图标、标题、简介和链接即可上线
 
+## 素材致谢
+
+- 演示视频：Big Buck Bunny © Blender Foundation | www.blender.org，[CC-BY 3.0](https://creativecommons.org/licenses/by/3.0/) 授权
+- 演示音频：本站自行合成的短旋律（无版权限制）
+
 ## 技术说明
 
 - 纯 HTML/CSS/JavaScript，无任何框架与 CDN 依赖，离线可用

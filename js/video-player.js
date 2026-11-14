@@ -375,7 +375,7 @@
       const name = document.createElement("span");
       name.className = "name";
       name.textContent = t.name;
-      name.title = t.name + (t.isLocal ? "" : "（网络链接）");
+      name.title = t.name + (t.isLocal ? "" : t.sameOrigin ? "（演示）" : "（网络链接）");
       const rm = document.createElement("button");
       rm.className = "remove";
       rm.title = "移除";
@@ -410,6 +410,12 @@
   btnUrl.addEventListener("click", () => addUrlTrack(urlInput.value));
   urlInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") addUrlTrack(urlInput.value);
+  });
+  document.getElementById("btn-demo").addEventListener("click", () => {
+    const idx = tracks.length;
+    tracks.push({ name: "演示视频 · Big Buck Bunny", url: "../test-media/demo-video.mp4", isLocal: false, sameOrigin: true });
+    renderPlaylist();
+    playTrack(idx);
   });
 
   /* ---------- 按钮 ---------- */

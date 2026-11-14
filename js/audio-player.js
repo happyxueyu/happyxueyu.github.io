@@ -155,8 +155,8 @@
     const track = tracks[i];
     currentIndex = i;
 
-    // 切换音频元素
-    const el = track.isLocal ? audioLocal : audioRemote;
+    // 切换音频元素（本地文件与同源演示文件走 Web Audio 通路以启用频谱）
+    const el = track.isLocal || track.sameOrigin ? audioLocal : audioRemote;
     if (activeEl && activeEl !== el) {
       activeEl.pause();
     }
@@ -166,7 +166,8 @@
     el.src = track.url;
 
     titleEl.textContent = track.name;
-    subEl.textContent = (track.isLocal ? "本地文件" : "网络链接") + ` · 第 ${i + 1} / ${tracks.length} 首`;
+    const sourceLabel = track.isLocal ? "本地文件" : track.sameOrigin ? "演示文件" : "网络链接";
+    subEl.textContent = sourceLabel + ` · 第 ${i + 1} / ${tracks.length} 首`;
     renderPlaylist();
 
     if (autoplay) {
@@ -395,7 +396,7 @@
       const name = document.createElement("span");
       name.className = "name";
       name.textContent = t.name;
-      name.title = t.name + (t.isLocal ? "" : "（网络链接）");
+      name.title = t.name + (t.isLocal ? "" : t.sameOrigin ? "（演示）" : "（网络链接）");
       const dur = document.createElement("span");
       dur.className = "dur";
       dur.textContent = t.duration ? formatTime(t.duration) : "";
@@ -432,6 +433,13 @@
   btnUrl.addEventListener("click", () => addUrlTrack(urlInput.value));
   urlInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") addUrlTrack(urlInput.value);
+  });
+  document.getElementById("btn-demo").addEventListener("click", () => {
+    const idx = tracks.length;
+    tracks.push({ name: "演示音频 · 试听旋律", url: "../test-media/demo-melody.wav", isLocal: false, sameOrigin: true });
+    renderPlaylist();
+    playTrack(idx);
+    probeDurations();
   });
 
   /* ---------- 按钮 ---------- */
