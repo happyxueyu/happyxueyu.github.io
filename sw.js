@@ -5,7 +5,7 @@
    ========================================================== */
 "use strict";
 
-const CACHE = "aigc-toolbox-v1";
+const CACHE = "aigc-toolbox-v2";
 const PRECACHE = [
   "./",
   "./index.html",
