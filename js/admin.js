@@ -1,27 +1,18 @@
 /* ==========================================================
-   精进群工具箱 — 后台管理页（密码门禁版）
-   日常使用：输入管理密码即可修改播放计划。
-   GitHub 凭证来源（按优先级）：
-   1. EMBEDDED_TOKEN_B64（预嵌入，联系管理员更新）
-   2. 本浏览器 localStorage（首次设置时粘贴保存）
+   精进群工具箱 — 后台管理页（免密版）
+   打开即编辑；保存到仓库需要 GitHub 写凭证，来源（按优先级）：
+   1. EMBEDDED_TOKEN_B64（预嵌入，全员免设置）
+   2. 本浏览器 localStorage（首次设置时粘贴一次，仅本设备）
    ========================================================== */
 "use strict";
 
 const REPO = "happyxueyu/happyxueyu.github.io";
 const TOKEN_KEY = "jjq_admin_token";
-const GATE_KEY = "jjq_admin_unlocked";
-
-/* 管理密码（SHA-256，修改密码请联系管理员更新此哈希） */
-const PASS_HASH = "5b362a2d2154c238a96cdea333f2e0875a5a3736881965280842d4a383cb3f45";
 
 /* 预嵌入凭证位（base64 的细粒度令牌，留空表示未嵌入） */
 const EMBEDDED_TOKEN_B64 = "";
 
 /* ---------- 元素 ---------- */
-const gateCard = document.getElementById("gate-card");
-const passInput = document.getElementById("pass-input");
-const btnPass = document.getElementById("btn-pass");
-const gateStatus = document.getElementById("gate-status");
 const tokenCard = document.getElementById("token-card");
 const tokenInput = document.getElementById("token-input");
 const btnToken = document.getElementById("btn-token");
@@ -32,61 +23,11 @@ const graceInput = document.getElementById("grace-input");
 const btnAdd = document.getElementById("btn-add");
 const saveCard = document.getElementById("save-card");
 const btnSave = document.getElementById("btn-save");
-const btnLogout = document.getElementById("btn-logout");
 const saveStatus = document.getElementById("save-status");
 
 let token = "";
 let tokenOK = false;
-let unlocked = sessionStorage.getItem(GATE_KEY) === "1";
 let editing = [];
-
-/* ---------- 密码门禁 ---------- */
-async function sha256Hex(text) {
-  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
-  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
-}
-
-async function tryUnlock() {
-  if (!window.crypto || !crypto.subtle) {
-    gateStatus.textContent = "当前环境不支持（请在线访问本页）";
-    return;
-  }
-  const hash = await sha256Hex(passInput.value);
-  if (hash === PASS_HASH) {
-    unlocked = true;
-    sessionStorage.setItem(GATE_KEY, "1");
-    enterAdmin();
-  } else {
-    gateStatus.textContent = "密码不正确";
-    gateStatus.className = "small err-text";
-  }
-  passInput.value = "";
-}
-
-btnPass.addEventListener("click", tryUnlock);
-passInput.addEventListener("keydown", (e) => { if (e.key === "Enter") tryUnlock(); });
-
-btnLogout.addEventListener("click", () => {
-  sessionStorage.removeItem(GATE_KEY);
-  location.reload();
-});
-
-/* ---------- 进入管理界面 ---------- */
-function enterAdmin() {
-  gateCard.hidden = true;
-  // 令牌来源：预嵌入 > 本浏览器保存
-  const embedded = EMBEDDED_TOKEN_B64 ? atob(EMBEDDED_TOKEN_B64) : "";
-  token = embedded || localStorage.getItem(TOKEN_KEY) || "";
-  if (token) {
-    tokenCard.hidden = true;
-    validateAndLoad();
-  } else {
-    tokenCard.hidden = false;
-    saveCard.hidden = false;
-    btnSave.disabled = true;
-    tokenStatus.textContent = "尚未绑定凭证";
-  }
-}
 
 /* ---------- GitHub API ---------- */
 async function api(path, opts = {}) {
@@ -104,6 +45,21 @@ async function api(path, opts = {}) {
     throw new Error(msg);
   }
   return r.json();
+}
+
+/* ---------- 启动：确定凭证并加载 ---------- */
+async function boot() {
+  const embedded = EMBEDDED_TOKEN_B64 ? atob(EMBEDDED_TOKEN_B64) : "";
+  token = embedded || localStorage.getItem(TOKEN_KEY) || "";
+  if (token) {
+    tokenCard.hidden = true;
+    await validateAndLoad();
+  } else {
+    tokenCard.hidden = false;
+    saveCard.hidden = false;
+    btnSave.disabled = true;
+    tokenStatus.textContent = "尚未绑定凭证（每台设备只需一次）";
+  }
 }
 
 async function validateAndLoad() {
@@ -130,7 +86,7 @@ btnToken.addEventListener("click", async () => {
   if (!token) { showToast("请先粘贴令牌", "error"); return; }
   localStorage.setItem(TOKEN_KEY, token);
   await validateAndLoad();
-  if (tokenOK) showToast("绑定成功，以后只需密码", "ok");
+  if (tokenOK) showToast("绑定成功，以后打开直接编辑", "ok");
 });
 
 /* ---------- 配置加载与编辑 ---------- */
@@ -199,7 +155,7 @@ btnAdd.addEventListener("click", () => {
 
 /* ---------- 保存 ---------- */
 btnSave.addEventListener("click", async () => {
-  if (!tokenOK) { showToast("凭证不可用，请先重新绑定", "error"); return; }
+  if (!tokenOK) { showToast("凭证不可用，请先绑定", "error"); return; }
   const schedule = editing
     .filter((s) => s.videos.trim())
     .map((s) => ({
@@ -237,8 +193,7 @@ btnSave.addEventListener("click", async () => {
   }
 });
 
-/* ---------- 启动 ---------- */
-if (unlocked) enterAdmin();
+boot();
 
 /* ---------- Toast ---------- */
 function showToast(message, type = "info", duration = 2600) {

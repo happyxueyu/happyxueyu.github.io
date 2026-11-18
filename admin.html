@@ -13,20 +13,10 @@
     <h1>定时播放 · 后台管理</h1>
     <p class="muted small">修改保存后，GitHub Pages 约 1~2 分钟自动重建生效，所有访客将按新时间表播放。</p>
 
-    <!-- 密码门禁 -->
-    <section class="admin-card" id="gate-card">
-      <h2>请输入管理密码</h2>
-      <div class="token-row">
-        <input type="password" id="pass-input" placeholder="管理密码" autocomplete="off">
-        <button class="btn btn-primary" id="btn-pass">进入</button>
-      </div>
-      <div id="gate-status" class="small muted"></div>
-    </section>
-
     <!-- 令牌（仅在尚未配置时显示） -->
     <section class="admin-card" id="token-card" hidden>
       <h2>首次设置：绑定 GitHub 凭证（仅一次）</h2>
-      <p class="muted small">绑定后，以后任何设备只需要管理密码即可。</p>
+      <p class="muted small">绑定一次后，本设备以后打开本页直接编辑保存，无需其他操作。</p>
       <div class="token-row">
         <input type="password" id="token-input" placeholder="粘贴 GitHub 细粒度访问令牌（仅本仓库 Contents 读写）" autocomplete="off">
         <button class="btn btn-primary" id="btn-token">验证并保存</button>
@@ -58,7 +48,6 @@
     <!-- 保存 -->
     <section class="admin-card admin-actions" id="save-card" hidden>
       <button class="btn btn-primary" id="btn-save">保存并发布</button>
-      <button class="btn" id="btn-logout">退出管理</button>
       <span id="save-status" class="small muted"></span>
     </section>
   </main>
