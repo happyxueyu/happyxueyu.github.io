@@ -31,6 +31,12 @@
         <span id="vb-time">0:00 / 0:00</span>
       </div>
 
+      <!-- 静音提示：只要处于静音就显示，点击（或点画面任意处）开启声音 -->
+      <button id="unmute-btn" hidden><span class="mute-ic">🔇</span>点击开启声音</button>
+
+      <!-- 缓冲提示：视频加载时显示，避免黑屏无反馈 -->
+      <div id="buffering" hidden><span class="dot-flask"><span>●</span><span>●</span><span>●</span></span>视频加载中…</div>
+
       <div id="player-standby">
         <img src="icons/icon-192.png" alt="" width="88" height="88">
         <div id="sb-label">下一场将播放</div>
@@ -41,16 +47,11 @@
       <div id="player-state">待机</div>
     </div>
 
-    <div class="sound-hint">🔊 声音提示：若到点播放时没有声音，<strong>点击画面任意位置</strong>即可开启（部分设备首次访问需点一下，之后浏览器会记住，自动有声播放）</div>
-
     <div class="slots" id="slots"><!-- 由 js/app.js 按 config.json 动态渲染 --></div>
 
     <div id="countdown">—</div>
     <div class="hint muted" id="wake-hint"></div>
   </main>
-
-  <!-- 仅当浏览器拒绝有声自动播放时出现 -->
-  <button id="unmute-btn" hidden title="开启声音">🔇 点击开启声音</button>
 
   <footer id="note">注：本视频为测试用途，若有问题可直接反馈至
     <a href="mailto:329665584@qq.com">329665584@qq.com</a>

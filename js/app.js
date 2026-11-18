@@ -141,8 +141,24 @@ video.addEventListener("loadedmetadata", () => {
 
 unmuteBtn.addEventListener("click", () => {
   video.muted = false;
-  unmuteBtn.hidden = true;
 });
+
+/* 静音徽标：只要处于静音就显示（含音量/静音状态任何变化） */
+video.addEventListener("volumechange", () => {
+  unmuteBtn.hidden = !video.muted;
+});
+
+/* ---------- 缓冲提示：加载/卡顿时给出可见反馈 ---------- */
+const bufferingEl = document.getElementById("buffering");
+function setBuffering(on) {
+  if (playing) bufferingEl.hidden = !on;
+}
+video.addEventListener("waiting", () => setBuffering(true));
+video.addEventListener("stalled", () => setBuffering(true));
+video.addEventListener("loadstart", () => setBuffering(true));
+video.addEventListener("playing", () => setBuffering(false));
+video.addEventListener("canplay", () => setBuffering(false));
+video.addEventListener("ended", () => { bufferingEl.hidden = true; });
 
 /* ---------- 点击页面任意位置：开启声音 / 预授权后续自动播放 ---------- */
 let primed = false;

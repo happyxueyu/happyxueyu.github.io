@@ -120,19 +120,6 @@ a:hover { text-decoration: underline; }
 }
 #sb-countdown { font-size: 14px; opacity: 0.8; font-variant-numeric: tabular-nums; }
 
-/* ---------- 声音提示 ---------- */
-.sound-hint {
-  margin: 0 0 16px;
-  font-size: 12.5px;
-  color: var(--muted);
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 8px 14px;
-  text-align: left;
-}
-.sound-hint strong { color: var(--text); }
-
 /* ---------- 播放器外观栏（纯展示） ---------- */
 #vbar {
   position: absolute;
@@ -233,24 +220,58 @@ a:hover { text-decoration: underline; }
 .hint { margin-top: 12px; font-size: 13px; color: var(--muted); }
 .hint.muted { font-size: 12px; margin-top: 6px; }
 
-/* ---------- 静音解除按钮（仅被浏览器限制时出现） ---------- */
+/* ---------- 静音提示徽标（播放器内嵌，静音即显示） ---------- */
 #unmute-btn {
-  position: fixed;
-  top: 18px;
-  right: 18px;
-  z-index: 20;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font-family: var(--font);
   font-size: 14px;
   font-weight: 600;
   color: #fff;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.62);
   border: 1px solid var(--border-strong);
   border-radius: 999px;
-  padding: 10px 18px;
+  padding: 9px 16px;
   cursor: pointer;
   backdrop-filter: blur(6px);
+  pointer-events: auto;
+  animation: mute-pulse 1.6s infinite;
 }
-#unmute-btn:hover { background: rgba(0, 0, 0, 0.8); }
+#unmute-btn .mute-ic { font-size: 18px; line-height: 1; }
+#unmute-btn:hover { background: rgba(0, 0, 0, 0.85); }
+@keyframes mute-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 107, 129, 0.55); }
+  50% { box-shadow: 0 0 0 10px rgba(255, 107, 129, 0); }
+}
+
+/* ---------- 缓冲提示 ---------- */
+#buffering {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  font-size: 15px;
+  pointer-events: none;
+}
+.dot-flask { display: inline-flex; gap: 7px; font-size: 20px; }
+.dot-flask span { animation: dot-bounce 1.2s infinite; }
+.dot-flask span:nth-child(2) { animation-delay: 0.15s; }
+.dot-flask span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes dot-bounce {
+  0%, 100% { opacity: 0.25; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-6px); }
+}
 
 /* ---------- 底部备注（常显） ---------- */
 #note {
