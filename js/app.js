@@ -395,9 +395,18 @@ function showToast(message, type = "info", duration = 2600) {
   }, duration);
 }
 
-/* ---------- Service Worker（PWA 离线） ---------- */
+/* ---------- Service Worker（PWA 离线 + 版本自愈） ---------- */
 if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("sw.js").catch(() => {});
+  });
+  /* 一旦新版本 Service Worker 接管（或首次注册），自动刷新一次页面，
+     确保用户始终尽快用上最新版，不再出现"刷新还是旧页面" */
+  let swReloaded = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (!swReloaded && navigator.serviceWorker.controller) {
+      swReloaded = true;
+      location.reload();
+    }
   });
 }
