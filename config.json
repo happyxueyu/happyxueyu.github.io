@@ -5,17 +5,1789 @@
       "id": "am",
       "name": "早课 · 视频1",
       "time": "05:30",
-      "videos": ["test-media/am-1.mp4", "test-media/am-2.mp4"],
-      "partDurations": [1883.36, 1854.8],
-      "durationSec": 3738.13
+      "audio": "test-media/am-audio.m4a",
+      "bg": "test-media/bg-am.jpg",
+      "durationSec": 3738.13,
+      "scenes": [
+        {
+          "t": 0,
+          "strip": "test-media/strips/am-00000.jpg"
+        },
+        {
+          "t": 2,
+          "strip": "test-media/strips/am-00002.jpg"
+        },
+        {
+          "t": 18,
+          "strip": "test-media/strips/am-00018.jpg"
+        },
+        {
+          "t": 38,
+          "strip": "test-media/strips/am-00038.jpg"
+        },
+        {
+          "t": 56,
+          "strip": "test-media/strips/am-00056.jpg"
+        },
+        {
+          "t": 112,
+          "strip": "test-media/strips/am-00112.jpg"
+        },
+        {
+          "t": 130,
+          "strip": "test-media/strips/am-00130.jpg"
+        },
+        {
+          "t": 184,
+          "strip": "test-media/strips/am-00184.jpg"
+        },
+        {
+          "t": 202,
+          "strip": "test-media/strips/am-00202.jpg"
+        },
+        {
+          "t": 258,
+          "strip": "test-media/strips/am-00258.jpg"
+        },
+        {
+          "t": 278,
+          "strip": "test-media/strips/am-00278.jpg"
+        },
+        {
+          "t": 332,
+          "strip": "test-media/strips/am-00332.jpg"
+        },
+        {
+          "t": 350,
+          "strip": "test-media/strips/am-00350.jpg"
+        },
+        {
+          "t": 406,
+          "strip": "test-media/strips/am-00406.jpg"
+        },
+        {
+          "t": 424,
+          "strip": "test-media/strips/am-00424.jpg"
+        },
+        {
+          "t": 480,
+          "strip": "test-media/strips/am-00480.jpg"
+        },
+        {
+          "t": 498,
+          "strip": "test-media/strips/am-00498.jpg"
+        },
+        {
+          "t": 554,
+          "strip": "test-media/strips/am-00554.jpg"
+        },
+        {
+          "t": 572,
+          "strip": "test-media/strips/am-00572.jpg"
+        },
+        {
+          "t": 628,
+          "strip": "test-media/strips/am-00628.jpg"
+        },
+        {
+          "t": 646,
+          "strip": "test-media/strips/am-00646.jpg"
+        },
+        {
+          "t": 702,
+          "strip": "test-media/strips/am-00702.jpg"
+        },
+        {
+          "t": 720,
+          "strip": "test-media/strips/am-00720.jpg"
+        },
+        {
+          "t": 776,
+          "strip": "test-media/strips/am-00776.jpg"
+        },
+        {
+          "t": 794,
+          "strip": "test-media/strips/am-00794.jpg"
+        },
+        {
+          "t": 848,
+          "strip": "test-media/strips/am-00848.jpg"
+        },
+        {
+          "t": 866,
+          "strip": "test-media/strips/am-00866.jpg"
+        },
+        {
+          "t": 922,
+          "strip": "test-media/strips/am-00922.jpg"
+        },
+        {
+          "t": 940,
+          "strip": "test-media/strips/am-00940.jpg"
+        },
+        {
+          "t": 996,
+          "strip": "test-media/strips/am-00996.jpg"
+        },
+        {
+          "t": 1014,
+          "strip": "test-media/strips/am-01014.jpg"
+        },
+        {
+          "t": 1070,
+          "strip": "test-media/strips/am-01070.jpg"
+        },
+        {
+          "t": 1088,
+          "strip": "test-media/strips/am-01088.jpg"
+        },
+        {
+          "t": 1144,
+          "strip": "test-media/strips/am-01144.jpg"
+        },
+        {
+          "t": 1162,
+          "strip": "test-media/strips/am-01162.jpg"
+        },
+        {
+          "t": 1218,
+          "strip": "test-media/strips/am-01218.jpg"
+        },
+        {
+          "t": 1236,
+          "strip": "test-media/strips/am-01236.jpg"
+        },
+        {
+          "t": 1292,
+          "strip": "test-media/strips/am-01292.jpg"
+        },
+        {
+          "t": 1310,
+          "strip": "test-media/strips/am-01310.jpg"
+        },
+        {
+          "t": 1366,
+          "strip": "test-media/strips/am-01366.jpg"
+        },
+        {
+          "t": 1384,
+          "strip": "test-media/strips/am-01384.jpg"
+        },
+        {
+          "t": 1438,
+          "strip": "test-media/strips/am-01438.jpg"
+        },
+        {
+          "t": 1456,
+          "strip": "test-media/strips/am-01456.jpg"
+        },
+        {
+          "t": 1512,
+          "strip": "test-media/strips/am-01512.jpg"
+        },
+        {
+          "t": 1532,
+          "strip": "test-media/strips/am-01532.jpg"
+        },
+        {
+          "t": 1586,
+          "strip": "test-media/strips/am-01586.jpg"
+        },
+        {
+          "t": 1604,
+          "strip": "test-media/strips/am-01604.jpg"
+        },
+        {
+          "t": 1660,
+          "strip": "test-media/strips/am-01660.jpg"
+        },
+        {
+          "t": 1678,
+          "strip": "test-media/strips/am-01678.jpg"
+        },
+        {
+          "t": 1734,
+          "strip": "test-media/strips/am-01734.jpg"
+        },
+        {
+          "t": 1752,
+          "strip": "test-media/strips/am-01752.jpg"
+        },
+        {
+          "t": 1808,
+          "strip": "test-media/strips/am-01808.jpg"
+        },
+        {
+          "t": 1826,
+          "strip": "test-media/strips/am-01826.jpg"
+        },
+        {
+          "t": 1882,
+          "strip": "test-media/strips/am-01882.jpg"
+        },
+        {
+          "t": 1900,
+          "strip": "test-media/strips/am-01900.jpg"
+        },
+        {
+          "t": 1956,
+          "strip": "test-media/strips/am-01956.jpg"
+        },
+        {
+          "t": 1974,
+          "strip": "test-media/strips/am-01974.jpg"
+        },
+        {
+          "t": 2030,
+          "strip": "test-media/strips/am-02030.jpg"
+        },
+        {
+          "t": 2048,
+          "strip": "test-media/strips/am-02048.jpg"
+        },
+        {
+          "t": 2102,
+          "strip": "test-media/strips/am-02102.jpg"
+        },
+        {
+          "t": 2120,
+          "strip": "test-media/strips/am-02120.jpg"
+        },
+        {
+          "t": 2176,
+          "strip": "test-media/strips/am-02176.jpg"
+        },
+        {
+          "t": 2196,
+          "strip": "test-media/strips/am-02196.jpg"
+        },
+        {
+          "t": 2250,
+          "strip": "test-media/strips/am-02250.jpg"
+        },
+        {
+          "t": 2268,
+          "strip": "test-media/strips/am-02268.jpg"
+        },
+        {
+          "t": 2324,
+          "strip": "test-media/strips/am-02324.jpg"
+        },
+        {
+          "t": 2342,
+          "strip": "test-media/strips/am-02342.jpg"
+        },
+        {
+          "t": 2398,
+          "strip": "test-media/strips/am-02398.jpg"
+        },
+        {
+          "t": 2416,
+          "strip": "test-media/strips/am-02416.jpg"
+        },
+        {
+          "t": 2472,
+          "strip": "test-media/strips/am-02472.jpg"
+        },
+        {
+          "t": 2490,
+          "strip": "test-media/strips/am-02490.jpg"
+        },
+        {
+          "t": 2546,
+          "strip": "test-media/strips/am-02546.jpg"
+        },
+        {
+          "t": 2564,
+          "strip": "test-media/strips/am-02564.jpg"
+        },
+        {
+          "t": 2620,
+          "strip": "test-media/strips/am-02620.jpg"
+        },
+        {
+          "t": 2638,
+          "strip": "test-media/strips/am-02638.jpg"
+        },
+        {
+          "t": 2692,
+          "strip": "test-media/strips/am-02692.jpg"
+        },
+        {
+          "t": 2712,
+          "strip": "test-media/strips/am-02712.jpg"
+        },
+        {
+          "t": 2766,
+          "strip": "test-media/strips/am-02766.jpg"
+        },
+        {
+          "t": 2786,
+          "strip": "test-media/strips/am-02786.jpg"
+        },
+        {
+          "t": 2840,
+          "strip": "test-media/strips/am-02840.jpg"
+        },
+        {
+          "t": 2858,
+          "strip": "test-media/strips/am-02858.jpg"
+        },
+        {
+          "t": 2914,
+          "strip": "test-media/strips/am-02914.jpg"
+        },
+        {
+          "t": 2932,
+          "strip": "test-media/strips/am-02932.jpg"
+        },
+        {
+          "t": 2988,
+          "strip": "test-media/strips/am-02988.jpg"
+        },
+        {
+          "t": 3006,
+          "strip": "test-media/strips/am-03006.jpg"
+        },
+        {
+          "t": 3062,
+          "strip": "test-media/strips/am-03062.jpg"
+        },
+        {
+          "t": 3080,
+          "strip": "test-media/strips/am-03080.jpg"
+        },
+        {
+          "t": 3136,
+          "strip": "test-media/strips/am-03136.jpg"
+        },
+        {
+          "t": 3154,
+          "strip": "test-media/strips/am-03154.jpg"
+        },
+        {
+          "t": 3210,
+          "strip": "test-media/strips/am-03210.jpg"
+        },
+        {
+          "t": 3228,
+          "strip": "test-media/strips/am-03228.jpg"
+        },
+        {
+          "t": 3284,
+          "strip": "test-media/strips/am-03284.jpg"
+        },
+        {
+          "t": 3302,
+          "strip": "test-media/strips/am-03302.jpg"
+        },
+        {
+          "t": 3358,
+          "strip": "test-media/strips/am-03358.jpg"
+        },
+        {
+          "t": 3376,
+          "strip": "test-media/strips/am-03376.jpg"
+        },
+        {
+          "t": 3430,
+          "strip": "test-media/strips/am-03430.jpg"
+        },
+        {
+          "t": 3450,
+          "strip": "test-media/strips/am-03450.jpg"
+        },
+        {
+          "t": 3504,
+          "strip": "test-media/strips/am-03504.jpg"
+        },
+        {
+          "t": 3522,
+          "strip": "test-media/strips/am-03522.jpg"
+        },
+        {
+          "t": 3578,
+          "strip": "test-media/strips/am-03578.jpg"
+        },
+        {
+          "t": 3596,
+          "strip": "test-media/strips/am-03596.jpg"
+        },
+        {
+          "t": 3660,
+          "full": "test-media/strips/am-full-03660.jpg"
+        },
+        {
+          "t": 3694,
+          "full": "test-media/strips/am-full-03694.jpg"
+        },
+        {
+          "t": 3710,
+          "full": "test-media/strips/am-full-03710.jpg"
+        },
+        {
+          "t": 3730,
+          "full": "test-media/strips/am-full-03730.jpg"
+        }
+      ]
     },
     {
       "id": "pm",
       "name": "晚课 · 视频2",
       "time": "20:00",
-      "videos": ["test-media/pm-1.mp4", "test-media/pm-2.mp4", "test-media/pm-3.mp4"],
-      "partDurations": [2450.05, 2475.0, 2427.8],
-      "durationSec": 7352.85
+      "audio": "test-media/pm-audio.m4a",
+      "bg": "test-media/bg-pm.jpg",
+      "durationSec": 7352.85,
+      "scenes": [
+        {
+          "t": 0,
+          "strip": "test-media/strips/pm-00000.jpg"
+        },
+        {
+          "t": 2,
+          "strip": "test-media/strips/pm-00002.jpg"
+        },
+        {
+          "t": 18,
+          "strip": "test-media/strips/pm-00018.jpg"
+        },
+        {
+          "t": 38,
+          "strip": "test-media/strips/pm-00038.jpg"
+        },
+        {
+          "t": 56,
+          "strip": "test-media/strips/pm-00056.jpg"
+        },
+        {
+          "t": 88,
+          "strip": "test-media/strips/pm-00088.jpg"
+        },
+        {
+          "t": 112,
+          "strip": "test-media/strips/pm-00112.jpg"
+        },
+        {
+          "t": 130,
+          "strip": "test-media/strips/pm-00130.jpg"
+        },
+        {
+          "t": 162,
+          "strip": "test-media/strips/pm-00162.jpg"
+        },
+        {
+          "t": 184,
+          "strip": "test-media/strips/pm-00184.jpg"
+        },
+        {
+          "t": 202,
+          "strip": "test-media/strips/pm-00202.jpg"
+        },
+        {
+          "t": 218,
+          "strip": "test-media/strips/pm-00218.jpg"
+        },
+        {
+          "t": 258,
+          "strip": "test-media/strips/pm-00258.jpg"
+        },
+        {
+          "t": 278,
+          "strip": "test-media/strips/pm-00278.jpg"
+        },
+        {
+          "t": 310,
+          "strip": "test-media/strips/pm-00310.jpg"
+        },
+        {
+          "t": 332,
+          "strip": "test-media/strips/pm-00332.jpg"
+        },
+        {
+          "t": 352,
+          "strip": "test-media/strips/pm-00352.jpg"
+        },
+        {
+          "t": 382,
+          "strip": "test-media/strips/pm-00382.jpg"
+        },
+        {
+          "t": 406,
+          "strip": "test-media/strips/pm-00406.jpg"
+        },
+        {
+          "t": 424,
+          "strip": "test-media/strips/pm-00424.jpg"
+        },
+        {
+          "t": 440,
+          "strip": "test-media/strips/pm-00440.jpg"
+        },
+        {
+          "t": 456,
+          "strip": "test-media/strips/pm-00456.jpg"
+        },
+        {
+          "t": 480,
+          "strip": "test-media/strips/pm-00480.jpg"
+        },
+        {
+          "t": 498,
+          "strip": "test-media/strips/pm-00498.jpg"
+        },
+        {
+          "t": 514,
+          "strip": "test-media/strips/pm-00514.jpg"
+        },
+        {
+          "t": 530,
+          "strip": "test-media/strips/pm-00530.jpg"
+        },
+        {
+          "t": 554,
+          "strip": "test-media/strips/pm-00554.jpg"
+        },
+        {
+          "t": 572,
+          "strip": "test-media/strips/pm-00572.jpg"
+        },
+        {
+          "t": 604,
+          "strip": "test-media/strips/pm-00604.jpg"
+        },
+        {
+          "t": 628,
+          "strip": "test-media/strips/pm-00628.jpg"
+        },
+        {
+          "t": 646,
+          "strip": "test-media/strips/pm-00646.jpg"
+        },
+        {
+          "t": 678,
+          "strip": "test-media/strips/pm-00678.jpg"
+        },
+        {
+          "t": 702,
+          "strip": "test-media/strips/pm-00702.jpg"
+        },
+        {
+          "t": 720,
+          "strip": "test-media/strips/pm-00720.jpg"
+        },
+        {
+          "t": 752,
+          "strip": "test-media/strips/pm-00752.jpg"
+        },
+        {
+          "t": 776,
+          "strip": "test-media/strips/pm-00776.jpg"
+        },
+        {
+          "t": 794,
+          "strip": "test-media/strips/pm-00794.jpg"
+        },
+        {
+          "t": 826,
+          "strip": "test-media/strips/pm-00826.jpg"
+        },
+        {
+          "t": 848,
+          "strip": "test-media/strips/pm-00848.jpg"
+        },
+        {
+          "t": 868,
+          "strip": "test-media/strips/pm-00868.jpg"
+        },
+        {
+          "t": 922,
+          "strip": "test-media/strips/pm-00922.jpg"
+        },
+        {
+          "t": 940,
+          "strip": "test-media/strips/pm-00940.jpg"
+        },
+        {
+          "t": 956,
+          "strip": "test-media/strips/pm-00956.jpg"
+        },
+        {
+          "t": 972,
+          "strip": "test-media/strips/pm-00972.jpg"
+        },
+        {
+          "t": 996,
+          "strip": "test-media/strips/pm-00996.jpg"
+        },
+        {
+          "t": 1014,
+          "strip": "test-media/strips/pm-01014.jpg"
+        },
+        {
+          "t": 1030,
+          "strip": "test-media/strips/pm-01030.jpg"
+        },
+        {
+          "t": 1046,
+          "strip": "test-media/strips/pm-01046.jpg"
+        },
+        {
+          "t": 1070,
+          "strip": "test-media/strips/pm-01070.jpg"
+        },
+        {
+          "t": 1088,
+          "strip": "test-media/strips/pm-01088.jpg"
+        },
+        {
+          "t": 1104,
+          "strip": "test-media/strips/pm-01104.jpg"
+        },
+        {
+          "t": 1120,
+          "strip": "test-media/strips/pm-01120.jpg"
+        },
+        {
+          "t": 1144,
+          "strip": "test-media/strips/pm-01144.jpg"
+        },
+        {
+          "t": 1162,
+          "strip": "test-media/strips/pm-01162.jpg"
+        },
+        {
+          "t": 1178,
+          "strip": "test-media/strips/pm-01178.jpg"
+        },
+        {
+          "t": 1194,
+          "strip": "test-media/strips/pm-01194.jpg"
+        },
+        {
+          "t": 1218,
+          "strip": "test-media/strips/pm-01218.jpg"
+        },
+        {
+          "t": 1236,
+          "strip": "test-media/strips/pm-01236.jpg"
+        },
+        {
+          "t": 1252,
+          "strip": "test-media/strips/pm-01252.jpg"
+        },
+        {
+          "t": 1268,
+          "strip": "test-media/strips/pm-01268.jpg"
+        },
+        {
+          "t": 1292,
+          "strip": "test-media/strips/pm-01292.jpg"
+        },
+        {
+          "t": 1310,
+          "strip": "test-media/strips/pm-01310.jpg"
+        },
+        {
+          "t": 1342,
+          "strip": "test-media/strips/pm-01342.jpg"
+        },
+        {
+          "t": 1366,
+          "strip": "test-media/strips/pm-01366.jpg"
+        },
+        {
+          "t": 1384,
+          "strip": "test-media/strips/pm-01384.jpg"
+        },
+        {
+          "t": 1416,
+          "strip": "test-media/strips/pm-01416.jpg"
+        },
+        {
+          "t": 1438,
+          "strip": "test-media/strips/pm-01438.jpg"
+        },
+        {
+          "t": 1456,
+          "strip": "test-media/strips/pm-01456.jpg"
+        },
+        {
+          "t": 1472,
+          "strip": "test-media/strips/pm-01472.jpg"
+        },
+        {
+          "t": 1490,
+          "strip": "test-media/strips/pm-01490.jpg"
+        },
+        {
+          "t": 1512,
+          "strip": "test-media/strips/pm-01512.jpg"
+        },
+        {
+          "t": 1532,
+          "strip": "test-media/strips/pm-01532.jpg"
+        },
+        {
+          "t": 1564,
+          "strip": "test-media/strips/pm-01564.jpg"
+        },
+        {
+          "t": 1586,
+          "strip": "test-media/strips/pm-01586.jpg"
+        },
+        {
+          "t": 1606,
+          "strip": "test-media/strips/pm-01606.jpg"
+        },
+        {
+          "t": 1636,
+          "strip": "test-media/strips/pm-01636.jpg"
+        },
+        {
+          "t": 1660,
+          "strip": "test-media/strips/pm-01660.jpg"
+        },
+        {
+          "t": 1678,
+          "strip": "test-media/strips/pm-01678.jpg"
+        },
+        {
+          "t": 1694,
+          "strip": "test-media/strips/pm-01694.jpg"
+        },
+        {
+          "t": 1710,
+          "strip": "test-media/strips/pm-01710.jpg"
+        },
+        {
+          "t": 1734,
+          "strip": "test-media/strips/pm-01734.jpg"
+        },
+        {
+          "t": 1752,
+          "strip": "test-media/strips/pm-01752.jpg"
+        },
+        {
+          "t": 1768,
+          "strip": "test-media/strips/pm-01768.jpg"
+        },
+        {
+          "t": 1784,
+          "strip": "test-media/strips/pm-01784.jpg"
+        },
+        {
+          "t": 1808,
+          "strip": "test-media/strips/pm-01808.jpg"
+        },
+        {
+          "t": 1826,
+          "strip": "test-media/strips/pm-01826.jpg"
+        },
+        {
+          "t": 1842,
+          "strip": "test-media/strips/pm-01842.jpg"
+        },
+        {
+          "t": 1858,
+          "strip": "test-media/strips/pm-01858.jpg"
+        },
+        {
+          "t": 1886,
+          "strip": "test-media/strips/pm-01886.jpg"
+        },
+        {
+          "t": 1908,
+          "strip": "test-media/strips/pm-01908.jpg"
+        },
+        {
+          "t": 1932,
+          "strip": "test-media/strips/pm-01932.jpg"
+        },
+        {
+          "t": 1956,
+          "strip": "test-media/strips/pm-01956.jpg"
+        },
+        {
+          "t": 1974,
+          "strip": "test-media/strips/pm-01974.jpg"
+        },
+        {
+          "t": 2006,
+          "strip": "test-media/strips/pm-02006.jpg"
+        },
+        {
+          "t": 2030,
+          "strip": "test-media/strips/pm-02030.jpg"
+        },
+        {
+          "t": 2048,
+          "strip": "test-media/strips/pm-02048.jpg"
+        },
+        {
+          "t": 2080,
+          "strip": "test-media/strips/pm-02080.jpg"
+        },
+        {
+          "t": 2104,
+          "strip": "test-media/strips/pm-02104.jpg"
+        },
+        {
+          "t": 2122,
+          "strip": "test-media/strips/pm-02122.jpg"
+        },
+        {
+          "t": 2154,
+          "strip": "test-media/strips/pm-02154.jpg"
+        },
+        {
+          "t": 2176,
+          "strip": "test-media/strips/pm-02176.jpg"
+        },
+        {
+          "t": 2196,
+          "strip": "test-media/strips/pm-02196.jpg"
+        },
+        {
+          "t": 2228,
+          "strip": "test-media/strips/pm-02228.jpg"
+        },
+        {
+          "t": 2250,
+          "strip": "test-media/strips/pm-02250.jpg"
+        },
+        {
+          "t": 2270,
+          "strip": "test-media/strips/pm-02270.jpg"
+        },
+        {
+          "t": 2302,
+          "strip": "test-media/strips/pm-02302.jpg"
+        },
+        {
+          "t": 2324,
+          "strip": "test-media/strips/pm-02324.jpg"
+        },
+        {
+          "t": 2344,
+          "strip": "test-media/strips/pm-02344.jpg"
+        },
+        {
+          "t": 2374,
+          "strip": "test-media/strips/pm-02374.jpg"
+        },
+        {
+          "t": 2398,
+          "strip": "test-media/strips/pm-02398.jpg"
+        },
+        {
+          "t": 2416,
+          "strip": "test-media/strips/pm-02416.jpg"
+        },
+        {
+          "t": 2432,
+          "strip": "test-media/strips/pm-02432.jpg"
+        },
+        {
+          "t": 2448,
+          "strip": "test-media/strips/pm-02448.jpg"
+        },
+        {
+          "t": 2472,
+          "strip": "test-media/strips/pm-02472.jpg"
+        },
+        {
+          "t": 2490,
+          "strip": "test-media/strips/pm-02490.jpg"
+        },
+        {
+          "t": 2506,
+          "strip": "test-media/strips/pm-02506.jpg"
+        },
+        {
+          "t": 2522,
+          "strip": "test-media/strips/pm-02522.jpg"
+        },
+        {
+          "t": 2546,
+          "strip": "test-media/strips/pm-02546.jpg"
+        },
+        {
+          "t": 2564,
+          "strip": "test-media/strips/pm-02564.jpg"
+        },
+        {
+          "t": 2580,
+          "strip": "test-media/strips/pm-02580.jpg"
+        },
+        {
+          "t": 2596,
+          "strip": "test-media/strips/pm-02596.jpg"
+        },
+        {
+          "t": 2620,
+          "strip": "test-media/strips/pm-02620.jpg"
+        },
+        {
+          "t": 2638,
+          "strip": "test-media/strips/pm-02638.jpg"
+        },
+        {
+          "t": 2670,
+          "strip": "test-media/strips/pm-02670.jpg"
+        },
+        {
+          "t": 2694,
+          "strip": "test-media/strips/pm-02694.jpg"
+        },
+        {
+          "t": 2712,
+          "strip": "test-media/strips/pm-02712.jpg"
+        },
+        {
+          "t": 2744,
+          "strip": "test-media/strips/pm-02744.jpg"
+        },
+        {
+          "t": 2766,
+          "strip": "test-media/strips/pm-02766.jpg"
+        },
+        {
+          "t": 2786,
+          "strip": "test-media/strips/pm-02786.jpg"
+        },
+        {
+          "t": 2818,
+          "strip": "test-media/strips/pm-02818.jpg"
+        },
+        {
+          "t": 2840,
+          "strip": "test-media/strips/pm-02840.jpg"
+        },
+        {
+          "t": 2858,
+          "strip": "test-media/strips/pm-02858.jpg"
+        },
+        {
+          "t": 2874,
+          "strip": "test-media/strips/pm-02874.jpg"
+        },
+        {
+          "t": 2914,
+          "strip": "test-media/strips/pm-02914.jpg"
+        },
+        {
+          "t": 2932,
+          "strip": "test-media/strips/pm-02932.jpg"
+        },
+        {
+          "t": 2948,
+          "strip": "test-media/strips/pm-02948.jpg"
+        },
+        {
+          "t": 2964,
+          "strip": "test-media/strips/pm-02964.jpg"
+        },
+        {
+          "t": 2988,
+          "strip": "test-media/strips/pm-02988.jpg"
+        },
+        {
+          "t": 3006,
+          "strip": "test-media/strips/pm-03006.jpg"
+        },
+        {
+          "t": 3022,
+          "strip": "test-media/strips/pm-03022.jpg"
+        },
+        {
+          "t": 3038,
+          "strip": "test-media/strips/pm-03038.jpg"
+        },
+        {
+          "t": 3062,
+          "strip": "test-media/strips/pm-03062.jpg"
+        },
+        {
+          "t": 3080,
+          "strip": "test-media/strips/pm-03080.jpg"
+        },
+        {
+          "t": 3096,
+          "strip": "test-media/strips/pm-03096.jpg"
+        },
+        {
+          "t": 3112,
+          "strip": "test-media/strips/pm-03112.jpg"
+        },
+        {
+          "t": 3136,
+          "strip": "test-media/strips/pm-03136.jpg"
+        },
+        {
+          "t": 3154,
+          "strip": "test-media/strips/pm-03154.jpg"
+        },
+        {
+          "t": 3170,
+          "strip": "test-media/strips/pm-03170.jpg"
+        },
+        {
+          "t": 3186,
+          "strip": "test-media/strips/pm-03186.jpg"
+        },
+        {
+          "t": 3210,
+          "strip": "test-media/strips/pm-03210.jpg"
+        },
+        {
+          "t": 3228,
+          "strip": "test-media/strips/pm-03228.jpg"
+        },
+        {
+          "t": 3260,
+          "strip": "test-media/strips/pm-03260.jpg"
+        },
+        {
+          "t": 3284,
+          "strip": "test-media/strips/pm-03284.jpg"
+        },
+        {
+          "t": 3302,
+          "strip": "test-media/strips/pm-03302.jpg"
+        },
+        {
+          "t": 3334,
+          "strip": "test-media/strips/pm-03334.jpg"
+        },
+        {
+          "t": 3358,
+          "strip": "test-media/strips/pm-03358.jpg"
+        },
+        {
+          "t": 3376,
+          "strip": "test-media/strips/pm-03376.jpg"
+        },
+        {
+          "t": 3408,
+          "strip": "test-media/strips/pm-03408.jpg"
+        },
+        {
+          "t": 3432,
+          "strip": "test-media/strips/pm-03432.jpg"
+        },
+        {
+          "t": 3450,
+          "strip": "test-media/strips/pm-03450.jpg"
+        },
+        {
+          "t": 3482,
+          "strip": "test-media/strips/pm-03482.jpg"
+        },
+        {
+          "t": 3504,
+          "strip": "test-media/strips/pm-03504.jpg"
+        },
+        {
+          "t": 3524,
+          "strip": "test-media/strips/pm-03524.jpg"
+        },
+        {
+          "t": 3556,
+          "strip": "test-media/strips/pm-03556.jpg"
+        },
+        {
+          "t": 3578,
+          "strip": "test-media/strips/pm-03578.jpg"
+        },
+        {
+          "t": 3596,
+          "strip": "test-media/strips/pm-03596.jpg"
+        },
+        {
+          "t": 3612,
+          "strip": "test-media/strips/pm-03612.jpg"
+        },
+        {
+          "t": 3652,
+          "strip": "test-media/strips/pm-03652.jpg"
+        },
+        {
+          "t": 3672,
+          "strip": "test-media/strips/pm-03672.jpg"
+        },
+        {
+          "t": 3702,
+          "strip": "test-media/strips/pm-03702.jpg"
+        },
+        {
+          "t": 3726,
+          "strip": "test-media/strips/pm-03726.jpg"
+        },
+        {
+          "t": 3744,
+          "strip": "test-media/strips/pm-03744.jpg"
+        },
+        {
+          "t": 3760,
+          "strip": "test-media/strips/pm-03760.jpg"
+        },
+        {
+          "t": 3776,
+          "strip": "test-media/strips/pm-03776.jpg"
+        },
+        {
+          "t": 3800,
+          "strip": "test-media/strips/pm-03800.jpg"
+        },
+        {
+          "t": 3818,
+          "strip": "test-media/strips/pm-03818.jpg"
+        },
+        {
+          "t": 3834,
+          "strip": "test-media/strips/pm-03834.jpg"
+        },
+        {
+          "t": 3850,
+          "strip": "test-media/strips/pm-03850.jpg"
+        },
+        {
+          "t": 3874,
+          "strip": "test-media/strips/pm-03874.jpg"
+        },
+        {
+          "t": 3892,
+          "strip": "test-media/strips/pm-03892.jpg"
+        },
+        {
+          "t": 3924,
+          "strip": "test-media/strips/pm-03924.jpg"
+        },
+        {
+          "t": 3948,
+          "strip": "test-media/strips/pm-03948.jpg"
+        },
+        {
+          "t": 3966,
+          "strip": "test-media/strips/pm-03966.jpg"
+        },
+        {
+          "t": 3998,
+          "strip": "test-media/strips/pm-03998.jpg"
+        },
+        {
+          "t": 4020,
+          "strip": "test-media/strips/pm-04020.jpg"
+        },
+        {
+          "t": 4040,
+          "strip": "test-media/strips/pm-04040.jpg"
+        },
+        {
+          "t": 4072,
+          "strip": "test-media/strips/pm-04072.jpg"
+        },
+        {
+          "t": 4098,
+          "strip": "test-media/strips/pm-04098.jpg"
+        },
+        {
+          "t": 4114,
+          "strip": "test-media/strips/pm-04114.jpg"
+        },
+        {
+          "t": 4146,
+          "strip": "test-media/strips/pm-04146.jpg"
+        },
+        {
+          "t": 4168,
+          "strip": "test-media/strips/pm-04168.jpg"
+        },
+        {
+          "t": 4188,
+          "strip": "test-media/strips/pm-04188.jpg"
+        },
+        {
+          "t": 4220,
+          "strip": "test-media/strips/pm-04220.jpg"
+        },
+        {
+          "t": 4242,
+          "strip": "test-media/strips/pm-04242.jpg"
+        },
+        {
+          "t": 4262,
+          "strip": "test-media/strips/pm-04262.jpg"
+        },
+        {
+          "t": 4294,
+          "strip": "test-media/strips/pm-04294.jpg"
+        },
+        {
+          "t": 4316,
+          "strip": "test-media/strips/pm-04316.jpg"
+        },
+        {
+          "t": 4336,
+          "strip": "test-media/strips/pm-04336.jpg"
+        },
+        {
+          "t": 4366,
+          "strip": "test-media/strips/pm-04366.jpg"
+        },
+        {
+          "t": 4390,
+          "strip": "test-media/strips/pm-04390.jpg"
+        },
+        {
+          "t": 4408,
+          "strip": "test-media/strips/pm-04408.jpg"
+        },
+        {
+          "t": 4424,
+          "strip": "test-media/strips/pm-04424.jpg"
+        },
+        {
+          "t": 4440,
+          "strip": "test-media/strips/pm-04440.jpg"
+        },
+        {
+          "t": 4464,
+          "strip": "test-media/strips/pm-04464.jpg"
+        },
+        {
+          "t": 4482,
+          "strip": "test-media/strips/pm-04482.jpg"
+        },
+        {
+          "t": 4514,
+          "strip": "test-media/strips/pm-04514.jpg"
+        },
+        {
+          "t": 4538,
+          "strip": "test-media/strips/pm-04538.jpg"
+        },
+        {
+          "t": 4556,
+          "strip": "test-media/strips/pm-04556.jpg"
+        },
+        {
+          "t": 4588,
+          "strip": "test-media/strips/pm-04588.jpg"
+        },
+        {
+          "t": 4612,
+          "strip": "test-media/strips/pm-04612.jpg"
+        },
+        {
+          "t": 4630,
+          "strip": "test-media/strips/pm-04630.jpg"
+        },
+        {
+          "t": 4662,
+          "strip": "test-media/strips/pm-04662.jpg"
+        },
+        {
+          "t": 4686,
+          "strip": "test-media/strips/pm-04686.jpg"
+        },
+        {
+          "t": 4704,
+          "strip": "test-media/strips/pm-04704.jpg"
+        },
+        {
+          "t": 4736,
+          "strip": "test-media/strips/pm-04736.jpg"
+        },
+        {
+          "t": 4762,
+          "strip": "test-media/strips/pm-04762.jpg"
+        },
+        {
+          "t": 4778,
+          "strip": "test-media/strips/pm-04778.jpg"
+        },
+        {
+          "t": 4810,
+          "strip": "test-media/strips/pm-04810.jpg"
+        },
+        {
+          "t": 4832,
+          "strip": "test-media/strips/pm-04832.jpg"
+        },
+        {
+          "t": 4850,
+          "strip": "test-media/strips/pm-04850.jpg"
+        },
+        {
+          "t": 4866,
+          "strip": "test-media/strips/pm-04866.jpg"
+        },
+        {
+          "t": 4884,
+          "strip": "test-media/strips/pm-04884.jpg"
+        },
+        {
+          "t": 4906,
+          "strip": "test-media/strips/pm-04906.jpg"
+        },
+        {
+          "t": 4924,
+          "strip": "test-media/strips/pm-04924.jpg"
+        },
+        {
+          "t": 4940,
+          "strip": "test-media/strips/pm-04940.jpg"
+        },
+        {
+          "t": 4956,
+          "strip": "test-media/strips/pm-04956.jpg"
+        },
+        {
+          "t": 4980,
+          "strip": "test-media/strips/pm-04980.jpg"
+        },
+        {
+          "t": 4998,
+          "strip": "test-media/strips/pm-04998.jpg"
+        },
+        {
+          "t": 5014,
+          "strip": "test-media/strips/pm-05014.jpg"
+        },
+        {
+          "t": 5030,
+          "strip": "test-media/strips/pm-05030.jpg"
+        },
+        {
+          "t": 5054,
+          "strip": "test-media/strips/pm-05054.jpg"
+        },
+        {
+          "t": 5072,
+          "strip": "test-media/strips/pm-05072.jpg"
+        },
+        {
+          "t": 5088,
+          "strip": "test-media/strips/pm-05088.jpg"
+        },
+        {
+          "t": 5104,
+          "strip": "test-media/strips/pm-05104.jpg"
+        },
+        {
+          "t": 5128,
+          "strip": "test-media/strips/pm-05128.jpg"
+        },
+        {
+          "t": 5146,
+          "strip": "test-media/strips/pm-05146.jpg"
+        },
+        {
+          "t": 5162,
+          "strip": "test-media/strips/pm-05162.jpg"
+        },
+        {
+          "t": 5178,
+          "strip": "test-media/strips/pm-05178.jpg"
+        },
+        {
+          "t": 5202,
+          "strip": "test-media/strips/pm-05202.jpg"
+        },
+        {
+          "t": 5220,
+          "strip": "test-media/strips/pm-05220.jpg"
+        },
+        {
+          "t": 5236,
+          "strip": "test-media/strips/pm-05236.jpg"
+        },
+        {
+          "t": 5252,
+          "strip": "test-media/strips/pm-05252.jpg"
+        },
+        {
+          "t": 5276,
+          "strip": "test-media/strips/pm-05276.jpg"
+        },
+        {
+          "t": 5294,
+          "strip": "test-media/strips/pm-05294.jpg"
+        },
+        {
+          "t": 5326,
+          "strip": "test-media/strips/pm-05326.jpg"
+        },
+        {
+          "t": 5348,
+          "strip": "test-media/strips/pm-05348.jpg"
+        },
+        {
+          "t": 5368,
+          "strip": "test-media/strips/pm-05368.jpg"
+        },
+        {
+          "t": 5400,
+          "strip": "test-media/strips/pm-05400.jpg"
+        },
+        {
+          "t": 5422,
+          "strip": "test-media/strips/pm-05422.jpg"
+        },
+        {
+          "t": 5442,
+          "strip": "test-media/strips/pm-05442.jpg"
+        },
+        {
+          "t": 5474,
+          "strip": "test-media/strips/pm-05474.jpg"
+        },
+        {
+          "t": 5496,
+          "strip": "test-media/strips/pm-05496.jpg"
+        },
+        {
+          "t": 5516,
+          "strip": "test-media/strips/pm-05516.jpg"
+        },
+        {
+          "t": 5548,
+          "strip": "test-media/strips/pm-05548.jpg"
+        },
+        {
+          "t": 5570,
+          "strip": "test-media/strips/pm-05570.jpg"
+        },
+        {
+          "t": 5588,
+          "strip": "test-media/strips/pm-05588.jpg"
+        },
+        {
+          "t": 5604,
+          "strip": "test-media/strips/pm-05604.jpg"
+        },
+        {
+          "t": 5620,
+          "strip": "test-media/strips/pm-05620.jpg"
+        },
+        {
+          "t": 5644,
+          "strip": "test-media/strips/pm-05644.jpg"
+        },
+        {
+          "t": 5662,
+          "strip": "test-media/strips/pm-05662.jpg"
+        },
+        {
+          "t": 5678,
+          "strip": "test-media/strips/pm-05678.jpg"
+        },
+        {
+          "t": 5694,
+          "strip": "test-media/strips/pm-05694.jpg"
+        },
+        {
+          "t": 5718,
+          "strip": "test-media/strips/pm-05718.jpg"
+        },
+        {
+          "t": 5736,
+          "strip": "test-media/strips/pm-05736.jpg"
+        },
+        {
+          "t": 5752,
+          "strip": "test-media/strips/pm-05752.jpg"
+        },
+        {
+          "t": 5768,
+          "strip": "test-media/strips/pm-05768.jpg"
+        },
+        {
+          "t": 5792,
+          "strip": "test-media/strips/pm-05792.jpg"
+        },
+        {
+          "t": 5810,
+          "strip": "test-media/strips/pm-05810.jpg"
+        },
+        {
+          "t": 5826,
+          "strip": "test-media/strips/pm-05826.jpg"
+        },
+        {
+          "t": 5842,
+          "strip": "test-media/strips/pm-05842.jpg"
+        },
+        {
+          "t": 5866,
+          "strip": "test-media/strips/pm-05866.jpg"
+        },
+        {
+          "t": 5884,
+          "strip": "test-media/strips/pm-05884.jpg"
+        },
+        {
+          "t": 5916,
+          "strip": "test-media/strips/pm-05916.jpg"
+        },
+        {
+          "t": 5940,
+          "strip": "test-media/strips/pm-05940.jpg"
+        },
+        {
+          "t": 5958,
+          "strip": "test-media/strips/pm-05958.jpg"
+        },
+        {
+          "t": 5990,
+          "strip": "test-media/strips/pm-05990.jpg"
+        },
+        {
+          "t": 6014,
+          "strip": "test-media/strips/pm-06014.jpg"
+        },
+        {
+          "t": 6032,
+          "strip": "test-media/strips/pm-06032.jpg"
+        },
+        {
+          "t": 6064,
+          "strip": "test-media/strips/pm-06064.jpg"
+        },
+        {
+          "t": 6086,
+          "strip": "test-media/strips/pm-06086.jpg"
+        },
+        {
+          "t": 6106,
+          "strip": "test-media/strips/pm-06106.jpg"
+        },
+        {
+          "t": 6138,
+          "strip": "test-media/strips/pm-06138.jpg"
+        },
+        {
+          "t": 6160,
+          "strip": "test-media/strips/pm-06160.jpg"
+        },
+        {
+          "t": 6178,
+          "strip": "test-media/strips/pm-06178.jpg"
+        },
+        {
+          "t": 6194,
+          "strip": "test-media/strips/pm-06194.jpg"
+        },
+        {
+          "t": 6234,
+          "strip": "test-media/strips/pm-06234.jpg"
+        },
+        {
+          "t": 6254,
+          "strip": "test-media/strips/pm-06254.jpg"
+        },
+        {
+          "t": 6284,
+          "strip": "test-media/strips/pm-06284.jpg"
+        },
+        {
+          "t": 6312,
+          "strip": "test-media/strips/pm-06312.jpg"
+        },
+        {
+          "t": 6334,
+          "strip": "test-media/strips/pm-06334.jpg"
+        },
+        {
+          "t": 6358,
+          "strip": "test-media/strips/pm-06358.jpg"
+        },
+        {
+          "t": 6382,
+          "strip": "test-media/strips/pm-06382.jpg"
+        },
+        {
+          "t": 6400,
+          "strip": "test-media/strips/pm-06400.jpg"
+        },
+        {
+          "t": 6416,
+          "strip": "test-media/strips/pm-06416.jpg"
+        },
+        {
+          "t": 6432,
+          "strip": "test-media/strips/pm-06432.jpg"
+        },
+        {
+          "t": 6456,
+          "strip": "test-media/strips/pm-06456.jpg"
+        },
+        {
+          "t": 6474,
+          "strip": "test-media/strips/pm-06474.jpg"
+        },
+        {
+          "t": 6490,
+          "strip": "test-media/strips/pm-06490.jpg"
+        },
+        {
+          "t": 6506,
+          "strip": "test-media/strips/pm-06506.jpg"
+        },
+        {
+          "t": 6530,
+          "strip": "test-media/strips/pm-06530.jpg"
+        },
+        {
+          "t": 6548,
+          "strip": "test-media/strips/pm-06548.jpg"
+        },
+        {
+          "t": 6580,
+          "strip": "test-media/strips/pm-06580.jpg"
+        },
+        {
+          "t": 6604,
+          "strip": "test-media/strips/pm-06604.jpg"
+        },
+        {
+          "t": 6622,
+          "strip": "test-media/strips/pm-06622.jpg"
+        },
+        {
+          "t": 6654,
+          "strip": "test-media/strips/pm-06654.jpg"
+        },
+        {
+          "t": 6676,
+          "strip": "test-media/strips/pm-06676.jpg"
+        },
+        {
+          "t": 6696,
+          "strip": "test-media/strips/pm-06696.jpg"
+        },
+        {
+          "t": 6728,
+          "strip": "test-media/strips/pm-06728.jpg"
+        },
+        {
+          "t": 6750,
+          "strip": "test-media/strips/pm-06750.jpg"
+        },
+        {
+          "t": 6770,
+          "strip": "test-media/strips/pm-06770.jpg"
+        },
+        {
+          "t": 6802,
+          "strip": "test-media/strips/pm-06802.jpg"
+        },
+        {
+          "t": 6824,
+          "strip": "test-media/strips/pm-06824.jpg"
+        },
+        {
+          "t": 6844,
+          "strip": "test-media/strips/pm-06844.jpg"
+        },
+        {
+          "t": 6874,
+          "strip": "test-media/strips/pm-06874.jpg"
+        },
+        {
+          "t": 6898,
+          "strip": "test-media/strips/pm-06898.jpg"
+        },
+        {
+          "t": 6916,
+          "strip": "test-media/strips/pm-06916.jpg"
+        },
+        {
+          "t": 6932,
+          "strip": "test-media/strips/pm-06932.jpg"
+        },
+        {
+          "t": 6948,
+          "strip": "test-media/strips/pm-06948.jpg"
+        },
+        {
+          "t": 6972,
+          "strip": "test-media/strips/pm-06972.jpg"
+        },
+        {
+          "t": 6990,
+          "strip": "test-media/strips/pm-06990.jpg"
+        },
+        {
+          "t": 7006,
+          "strip": "test-media/strips/pm-07006.jpg"
+        },
+        {
+          "t": 7022,
+          "strip": "test-media/strips/pm-07022.jpg"
+        },
+        {
+          "t": 7050,
+          "strip": "test-media/strips/pm-07050.jpg"
+        },
+        {
+          "t": 7072,
+          "strip": "test-media/strips/pm-07072.jpg"
+        },
+        {
+          "t": 7096,
+          "strip": "test-media/strips/pm-07096.jpg"
+        },
+        {
+          "t": 7120,
+          "strip": "test-media/strips/pm-07120.jpg"
+        },
+        {
+          "t": 7138,
+          "strip": "test-media/strips/pm-07138.jpg"
+        },
+        {
+          "t": 7154,
+          "strip": "test-media/strips/pm-07154.jpg"
+        },
+        {
+          "t": 7170,
+          "strip": "test-media/strips/pm-07170.jpg"
+        },
+        {
+          "t": 7194,
+          "strip": "test-media/strips/pm-07194.jpg"
+        },
+        {
+          "t": 7210,
+          "strip": "test-media/strips/pm-07210.jpg"
+        },
+        {
+          "t": 7226,
+          "strip": "test-media/strips/pm-07226.jpg"
+        },
+        {
+          "t": 7242,
+          "strip": "test-media/strips/pm-07242.jpg"
+        },
+        {
+          "t": 7284,
+          "full": "test-media/strips/pm-full-07284.jpg"
+        },
+        {
+          "t": 7308,
+          "full": "test-media/strips/pm-full-07308.jpg"
+        },
+        {
+          "t": 7324,
+          "full": "test-media/strips/pm-full-07324.jpg"
+        },
+        {
+          "t": 7344,
+          "full": "test-media/strips/pm-full-07344.jpg"
+        }
+      ]
     }
   ]
 }
