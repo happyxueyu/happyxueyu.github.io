@@ -173,6 +173,20 @@ a:hover { text-decoration: underline; }
   transition: opacity 0.6s ease;
 }
 #bg-scene.show, #bg-b.show { opacity: 1; }
+
+/* ---------- 画面动态：Ken Burns 缓推 + 亮度呼吸（四层同步，保持对齐） ---------- */
+#bg-scene, #bg-b, #strip-a, #strip-b {
+  animation: kenburns 46s ease-in-out infinite alternate,
+             layer-shimmer 7s ease-in-out infinite;
+}
+@keyframes kenburns {
+  from { transform: scale(1) translate(0, 0); }
+  to   { transform: scale(1.055) translate(-0.8%, -0.6%); }
+}
+@keyframes layer-shimmer {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.05); }
+}
 #strip-a, #strip-b {
   position: absolute;
   left: 0;
