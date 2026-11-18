@@ -415,19 +415,19 @@
         },
         {
           "t": 3660,
-          "full": "test-media/strips/am-full-03660.jpg"
+          "full": "test-media/strips/am-full-03660.png"
         },
         {
           "t": 3694,
-          "full": "test-media/strips/am-full-03694.jpg"
+          "full": "test-media/strips/am-full-03694.png"
         },
         {
           "t": 3710,
-          "full": "test-media/strips/am-full-03710.jpg"
+          "full": "test-media/strips/am-full-03710.png"
         },
         {
           "t": 3730,
-          "full": "test-media/strips/am-full-03730.jpg"
+          "full": "test-media/strips/am-full-03730.png"
         }
       ]
     },
@@ -1773,19 +1773,19 @@
         },
         {
           "t": 7284,
-          "full": "test-media/strips/pm-full-07284.jpg"
+          "full": "test-media/strips/pm-full-07284.png"
         },
         {
           "t": 7308,
-          "full": "test-media/strips/pm-full-07308.jpg"
+          "full": "test-media/strips/pm-full-07308.png"
         },
         {
           "t": 7324,
-          "full": "test-media/strips/pm-full-07324.jpg"
+          "full": "test-media/strips/pm-full-07324.png"
         },
         {
           "t": 7344,
-          "full": "test-media/strips/pm-full-07344.jpg"
+          "full": "test-media/strips/pm-full-07344.png"
         }
       ]
     }
