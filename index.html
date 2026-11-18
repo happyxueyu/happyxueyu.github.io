@@ -49,18 +49,12 @@
         <div id="sb-countdown">—</div>
       </div>
       <div id="player-state">待机</div>
+      <button id="fs-exit" hidden title="退出全屏">✕</button>
     </div>
 
     <div class="slots" id="slots"><!-- 由 js/app.js 按 config.json 动态渲染 --></div>
 
     <div id="countdown">—</div>
-
-    <!-- 访问统计（不蒜子） -->
-    <div id="visit-stat" class="hint">
-      👁 累计
-      <span id="busuanzi_container_site_uv" style="display:none"><span id="busuanzi_value_site_uv">-</span> 位访客</span>
-      <span id="busuanzi_container_site_pv" style="display:none"> · <span id="busuanzi_value_site_pv">-</span> 次打开</span>
-    </div>
     <div class="hint muted" id="wake-hint"></div>
   </main>
 
@@ -72,7 +66,6 @@
   </footer>
 
   <div id="toast-container"></div>
-  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

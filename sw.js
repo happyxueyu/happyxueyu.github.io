@@ -1,10 +1,11 @@
 /* ==========================================================
    精进群工具箱测试 — Service Worker
-   静态资源缓存优先；config.json 网络优先（后台改配置快速生效）
+   文档与代码（html/js/css/json）：网络优先 → 缓存兜底（更新即时可见）
+   图片与视频等大文件：缓存优先（离线可用、省流量）
    ========================================================== */
 "use strict";
 
-const CACHE = "jjq-toolbox-v8";
+const CACHE = "jjq-toolbox-v10";
 const PRECACHE = [
   "./",
   "./index.html",
@@ -15,8 +16,6 @@ const PRECACHE = [
   "./css/style.css",
   "./js/app.js",
   "./js/admin.js",
-  /* config.json 不预缓存：始终优先走网络 */
-  /* 视频体积较大，首次播放后进入运行时缓存，之后离线可用 */
 ];
 
 self.addEventListener("install", (e) => {
@@ -35,40 +34,47 @@ self.addEventListener("activate", (e) => {
   );
 });
 
+/* 文档/代码类：网络优先（保证更新传播），失败回退缓存（离线可用） */
+function networkFirst(request) {
+  return fetch(request).then((res) => {
+    if (res.ok) {
+      const copy = res.clone();
+      caches.open(CACHE).then((c) => c.put(request, copy));
+    }
+    return res;
+  }).catch(() => caches.match(request).then((hit) => hit || Response.error()));
+}
+
+/* 大文件（视频/图片）：缓存优先 */
+function cacheFirst(request) {
+  return caches.match(request, { ignoreSearch: true }).then((hit) => {
+    if (hit) return hit;
+    return fetch(request).then((res) => {
+      if (res.ok) {
+        const copy = res.clone();
+        caches.open(CACHE).then((c) => c.put(request, copy));
+      }
+      return res;
+    });
+  });
+}
+
 self.addEventListener("fetch", (e) => {
   if (e.request.method !== "GET") return;
   const url = new URL(e.request.url);
   if (url.origin !== location.origin) return;
 
-  /* 配置文件：网络优先，取不到再用缓存兜底 */
-  if (url.pathname.endsWith("/config.json")) {
-    e.respondWith(
-      fetch(e.request).then((res) => {
-        if (res.ok) {
-          const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put(e.request, copy));
-        }
-        return res;
-      }).catch(() => caches.match(e.request).then((hit) => hit || Response.error()))
-    );
-    return;
-  }
+  const isDocLike =
+    e.request.mode === "navigate" ||
+    /\.(html|js|css|json)$/.test(url.pathname) ||
+    url.pathname === "./" || url.pathname === "/";
 
-  e.respondWith(
-    caches.match(e.request, { ignoreSearch: true }).then((hit) => {
-      if (hit) return hit;
-      return fetch(e.request).then((res) => {
-        if (res.ok) {
-          const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put(e.request, copy));
-        }
-        return res;
-      }).catch(() => {
-        if (e.request.mode === "navigate") {
-          return caches.match("./index.html");
-        }
-        return Response.error();
-      });
-    })
-  );
+  if (isDocLike) {
+    e.respondWith(networkFirst(e.request));
+  } else {
+    e.respondWith(cacheFirst(e.request).catch(() => {
+      if (e.request.mode === "navigate") return caches.match("./index.html");
+      return Response.error();
+    }));
+  }
 });

@@ -143,9 +143,23 @@ unmuteBtn.addEventListener("click", () => {
   video.muted = false;
 });
 
-/* 静音徽标：只要处于静音就显示（含音量/静音状态任何变化） */
+/* 静音徽标：静音时显示🔇开声音（红色脉冲）；开启后变🔊有声（绿色，3秒后收起） */
+let unmuteTimer = null;
 video.addEventListener("volumechange", () => {
-  unmuteBtn.hidden = !video.muted;
+  clearTimeout(unmuteTimer);
+  if (video.muted) {
+    unmuteBtn.hidden = false;
+    unmuteBtn.classList.add("muted");
+    unmuteBtn.innerHTML = '<span class="mute-ic">🔇</span>开声音';
+  } else if (playing) {
+    unmuteBtn.hidden = false;
+    unmuteBtn.classList.remove("muted");
+    unmuteBtn.innerHTML = '<span class="mute-ic">🔊</span>有声';
+    unmuteTimer = setTimeout(() => { unmuteBtn.hidden = true; }, 3000);
+  } else {
+    unmuteBtn.hidden = true;
+    unmuteBtn.classList.remove("muted");
+  }
 });
 
 /* ---------- 缓冲提示：加载/卡顿时给出可见反馈 ---------- */
@@ -324,30 +338,48 @@ fetch(new Request("config.json", { cache: "no-store" }))
 /* ---------- 刷新按钮 ---------- */
 document.getElementById("refresh-btn").addEventListener("click", () => location.reload());
 
-/* ---------- 横屏全屏 ---------- */
+/* ---------- 横屏全屏（真全屏优先，不支持的设备自动伪全屏） ---------- */
 const fsBtn = document.getElementById("fs-btn");
 const fsOpen = document.getElementById("fs-open");
 const fsClose = document.getElementById("fs-close");
-fsBtn.addEventListener("click", async () => {
-  try {
-    if (document.fullscreenElement) {
-      await document.exitFullscreen();
-    } else {
+const fsExitBtn = document.getElementById("fs-exit");
+let fakeFs = false; /* 伪全屏模式（iOS 等） */
+
+function fsActive() { return !!document.fullscreenElement || fakeFs; }
+function updateFsUI() {
+  const on = fsActive();
+  fsOpen.style.display = on ? "none" : "";
+  fsClose.style.display = on ? "" : "none";
+  fsExitBtn.hidden = !on;
+}
+async function exitFullscreenMode() {
+  if (document.fullscreenElement) {
+    try { await document.exitFullscreen(); } catch { /* 忽略 */ }
+  }
+  fakeFs = false;
+  document.body.classList.remove("fs-fake");
+  updateFsUI();
+}
+async function toggleFullscreen() {
+  if (fsActive()) { exitFullscreenMode(); return; }
+  if (playerWrap.requestFullscreen) {
+    try {
       await playerWrap.requestFullscreen();
       /* 手机上尝试锁横屏（部分浏览器支持，失败不影响全屏） */
       if (screen.orientation && screen.orientation.lock) {
         screen.orientation.lock("landscape").catch(() => {});
       }
-    }
-  } catch {
-    showToast("当前浏览器不支持全屏", "error");
+      return;
+    } catch { /* 进入失败 → 退回伪全屏 */ }
   }
-});
-document.addEventListener("fullscreenchange", () => {
-  const on = !!document.fullscreenElement;
-  fsOpen.style.display = on ? "none" : "";
-  fsClose.style.display = on ? "" : "none";
-});
+  /* 伪全屏：铺满屏幕，竖屏时画面旋转为横屏 */
+  fakeFs = true;
+  document.body.classList.add("fs-fake");
+  updateFsUI();
+}
+fsBtn.addEventListener("click", toggleFullscreen);
+fsExitBtn.addEventListener("click", exitFullscreenMode);
+document.addEventListener("fullscreenchange", updateFsUI);
 
 /* ---------- Toast ---------- */
 function showToast(message, type = "info", duration = 2600) {
