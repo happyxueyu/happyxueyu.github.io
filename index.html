@@ -19,7 +19,18 @@
 
     <!-- 内嵌播放器：待机时显示纯色待机屏（下一场信息），到点在此自动播放 -->
     <div id="player-wrap">
-      <video id="video" playsinline preload="auto" disablepictureinpicture></video>
+      <video id="video" playsinline webkit-playsinline
+             x5-video-player-type="h5" x5-video-player-fullscreen="false"
+             preload="auto" disablepictureinpicture></video>
+
+      <!-- 播放器外观栏：纯展示，不可操作 -->
+      <div id="vbar">
+        <svg id="vb-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        <svg id="vb-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+        <div id="vb-track"><div id="vb-fill"></div></div>
+        <span id="vb-time">0:00 / 0:00</span>
+      </div>
+
       <div id="player-standby">
         <img src="icons/icon-192.png" alt="" width="88" height="88">
         <div id="sb-label">下一场将播放</div>

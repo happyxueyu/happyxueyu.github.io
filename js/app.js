@@ -27,6 +27,10 @@ const sbTime = document.getElementById("sb-time");
 const sbCountdown = document.getElementById("sb-countdown");
 const unmuteBtn = document.getElementById("unmute-btn");
 const wakeHint = document.getElementById("wake-hint");
+const vbPlay = document.getElementById("vb-play");
+const vbPause = document.getElementById("vb-pause");
+const vbFill = document.getElementById("vb-fill");
+const vbTime = document.getElementById("vb-time");
 
 /* ---------- 状态 ---------- */
 let playing = false;
@@ -97,6 +101,28 @@ video.addEventListener("ended", () => {
 
 /* 禁止手动控制入口 */
 video.addEventListener("contextmenu", (e) => e.preventDefault());
+
+/* ---------- 播放器外观栏（进度条与时间，纯展示） ---------- */
+function fmtShort(s) {
+  if (!isFinite(s) || s < 0) return "0:00";
+  s = Math.floor(s);
+  const m = Math.floor(s / 60), sec = s % 60;
+  return `${m}:${String(sec).padStart(2, "0")}`;
+}
+function updateVbarIcon(isPlaying) {
+  vbPlay.style.display = isPlaying ? "none" : "";
+  vbPause.style.display = isPlaying ? "" : "none";
+}
+video.addEventListener("play", () => updateVbarIcon(true));
+video.addEventListener("pause", () => updateVbarIcon(false));
+video.addEventListener("timeupdate", () => {
+  if (!isFinite(video.duration) || !video.duration) return;
+  vbFill.style.width = `${(video.currentTime / video.duration) * 100}%`;
+  vbTime.textContent = `${fmtShort(video.currentTime)} / ${fmtShort(video.duration)}`;
+});
+video.addEventListener("loadedmetadata", () => {
+  vbTime.textContent = `0:00 / ${fmtShort(video.duration)}`;
+});
 
 unmuteBtn.addEventListener("click", () => {
   video.muted = false;

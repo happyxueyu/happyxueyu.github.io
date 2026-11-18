@@ -133,6 +133,44 @@ a:hover { text-decoration: underline; }
 }
 .sound-hint strong { color: var(--text); }
 
+/* ---------- 播放器外观栏（纯展示） ---------- */
+#vbar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 22px 12px 8px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.78));
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none; /* 外观展示，不可操作 */
+}
+#player-wrap.playing #vbar { opacity: 1; }
+
+#vbar svg { width: 18px; height: 18px; color: #fff; flex: none; }
+#vb-track {
+  flex: 1;
+  height: 4px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.25);
+  overflow: hidden;
+}
+#vb-fill {
+  height: 100%;
+  width: 0;
+  background: var(--accent-grad);
+}
+#vb-time {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.92);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
 #player-state {
   position: absolute;
   top: 10px;
