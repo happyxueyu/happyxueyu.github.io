@@ -14,14 +14,16 @@
 const DEFAULT_SCHEDULE = [
   {
     id: "am", name: "早课 · 视频1", time: "05:30",
-    audio: "test-media/am-audio.m4a", bg: "test-media/bg-am.jpg",
+    audio: "test-media/am-audio.m4a",
     durationSec: 3738.13,
+    bgs: [{ t: 0, img: "test-media/seg/seg-am-main.jpg" }],
     scenes: [{ t: 0, strip: "test-media/strips/am-00000.png" }],
   },
   {
     id: "pm", name: "晚课 · 视频2", time: "20:00",
-    audio: "test-media/pm-audio.m4a", bg: "test-media/bg-pm.jpg",
+    audio: "test-media/pm-audio.m4a",
     durationSec: 7352.85,
+    bgs: [{ t: 0, img: "test-media/seg/seg-pm-main.jpg" }],
     scenes: [{ t: 0, strip: "test-media/strips/pm-00000.png" }],
   },
 ];
@@ -36,6 +38,7 @@ const video = document.getElementById("video");
 const audioEl = document.getElementById("audio");
 const playerWrap = document.getElementById("player-wrap");
 const bgSc = document.getElementById("bg-scene");
+const bgB = document.getElementById("bg-b");
 const stripA = document.getElementById("strip-a");
 const stripB = document.getElementById("strip-b");
 const glowEl = document.getElementById("glow");
@@ -66,8 +69,11 @@ let wakeLock = null;
 let queue = [];                    // 视频模式分段列表
 let queueIndex = 0;
 const prefetched = new Set();
-let currentSceneKey = "";          // 当前场景标识（strip/full 的 URL）
+let currentSceneKey = "";          // 当前字幕条标识
 let frontStrip = stripA;           // 字幕条交叉淡入的前层
+let currentBgKey = "";             // 当前背景段标识
+let frontBg = bgSc;                // 背景交叉淡入的前层
+let soloMode = false;              // 当前背景段是否为整幅场景（片头/结尾，无字幕条）
 
 /* ---------- 时间工具 ---------- */
 function slotDate(slot, day) {
@@ -118,52 +124,77 @@ function checkSchedule() {
   }
 }
 
-/* ---------- 场景渲染：背景图 + 字幕条交叉淡入 + 结尾整帧 ---------- */
-function setScene(entry) {
-  if (!entry) return;
-  const stripUrl = entry.strip ? new URL(entry.strip, location.href).href : null;
-  const fullUrl = entry.full ? new URL(entry.full, location.href).href : null;
-  const key = stripUrl || fullUrl;
-  if (key === currentSceneKey) return;
-  currentSceneKey = key;
-
-  if (fullUrl) {
-    /* 结尾/整帧场景：整幅替换背景并隐藏字幕条与光芒 */
-    bgSc.src = fullUrl;
+/* ---------- 场景渲染：背景时间轴（片头/主景/结尾）+ 字幕条交叉淡入 ---------- */
+function setBgEntry(entry) {
+  if (!entry || !entry.img) return;
+  const url = new URL(entry.img, location.href).href;
+  const key = url + (entry.solo ? "|solo" : "");
+  if (key === currentBgKey) return;
+  currentBgKey = key;
+  soloMode = !!entry.solo;
+  /* 背景双图层交叉淡入 */
+  const back = frontBg === bgSc ? bgB : bgSc;
+  const apply = () => {
+    back.src = url;
+    back.classList.add("show");
+    frontBg.classList.remove("show");
+    frontBg = back;
+  };
+  if (back.complete && back.src === url) { apply(); return; }
+  const p = new Image();
+  p.onload = apply;
+  p.onerror = () => { /* 缺图保持上一张 */ };
+  p.src = url;
+  /* 整幅场景（片头/结尾）：隐藏字幕条与光芒 */
+  if (soloMode) {
     stripA.classList.remove("show");
     stripB.classList.remove("show");
     glowEl.hidden = true;
-    return;
+  } else {
+    glowEl.hidden = false;
   }
-  /* 字幕条场景：背景保持本场底图，字幕条交叉淡入 */
-  glowEl.hidden = false;
+}
+function setStrip(imgPath) {
+  if (!imgPath) return;
+  const url = new URL(imgPath, location.href).href;
+  if (url === currentSceneKey) return;
+  currentSceneKey = url;
   const back = frontStrip === stripA ? stripB : stripA;
   const apply = () => {
-    back.src = stripUrl;
+    back.src = url;
     back.classList.add("show");
     frontStrip.classList.remove("show");
     frontStrip = back;
   };
-  if (back.complete && back.src === stripUrl) { apply(); return; }
+  if (back.complete && back.src === url) { apply(); return; }
   const probe = new Image();
   probe.onload = apply;
-  probe.onerror = () => { /* 缺图则保持上一张 */ };
-  probe.src = stripUrl;
+  probe.onerror = () => { /* 缺图保持上一张 */ };
+  probe.src = url;
 }
-function syncSceneToTime(t) {
-  if (!currentSlot || !currentSlot.scenes) return;
-  let hit = currentSlot.scenes[0];
-  for (const s of currentSlot.scenes) {
+function timelinePick(list, t) {
+  if (!list || !list.length) return null;
+  let hit = list[0];
+  for (const s of list) {
     if (s.t <= t) hit = s; else break;
   }
-  setScene(hit);
+  return hit;
+}
+function syncBgToTime(t) {
+  if (!currentSlot || !currentSlot.bgs) return;
+  setBgEntry(timelinePick(currentSlot.bgs, t));
+}
+function syncSceneToTime(t) {
+  if (soloMode) return; /* 整幅场景期间不叠字幕 */
+  if (!currentSlot || !currentSlot.scenes) return;
+  const hit = timelinePick(currentSlot.scenes, t);
+  if (hit) setStrip(hit.strip);
 }
 function preloadScenes(slot) {
-  if (slot.bg) { const i = new Image(); i.src = new URL(slot.bg, location.href).href; }
+  (slot.bgs || []).forEach((b) => { const i = new Image(); i.src = new URL(b.img, location.href).href; });
   if (!slot.scenes) return;
   slot.scenes.slice(0, 6).forEach((s) => {
-    const p = s.strip || s.full;
-    if (p) { const i = new Image(); i.src = new URL(p, location.href).href; }
+    if (s.strip) { const i = new Image(); i.src = new URL(s.strip, location.href).href; }
   });
 }
 /* 滑动窗口预取：只提前加载接下来的几张字幕条 */
@@ -202,6 +233,7 @@ async function startPlay(slot, opts = {}) {
     /* —— 音频+图片模式（支持精准同步进场） —— */
     playerWrap.classList.add("audio-mode");
     bgSc.hidden = false;
+    bgB.hidden = false;
     stripA.hidden = false;
     stripB.hidden = false;
     glowEl.hidden = false;
@@ -209,8 +241,9 @@ async function startPlay(slot, opts = {}) {
     video.pause();
     audioEl.src = slot.audio;
     audioEl.muted = video.muted;
-    if (slot.bg) bgSc.src = new URL(slot.bg, location.href).href;
+    playerState.textContent = "播放中";
     currentSceneKey = "";
+    currentBgKey = "";
     preloadScenes(slot);
     const seekTo = () => {
       if (opts.seek > 0 && isFinite(audioEl.duration)) {
@@ -219,8 +252,9 @@ async function startPlay(slot, opts = {}) {
       audioEl.removeEventListener("loadedmetadata", seekTo);
     };
     audioEl.addEventListener("loadedmetadata", seekTo);
+    syncBgToTime(opts.seek || 0);
     syncSceneToTime(opts.seek || 0);
-    await tryPlay(audioEl, opts.seek || 0, seekTo);
+    await tryPlay(audioEl);
   } else {
     /* —— 视频模式（分段连播 + 精准同步进场） —— */
     playerWrap.classList.remove("audio-mode");
@@ -299,6 +333,7 @@ function onMediaEvent(el) {
     vbFill.style.width = `${(el.currentTime / el.duration) * 100}%`;
     vbTime.textContent = `${fmtShort(el.currentTime)} / ${fmtShort(el.duration)}`;
     if (currentSlot && currentSlot.audio && media === el) {
+      syncBgToTime(el.currentTime);
       syncSceneToTime(el.currentTime);
       prefetchUpcomingScenes(el.currentTime);
     }
@@ -344,10 +379,14 @@ function finishSession() {
   playerWrap.classList.remove("playing", "audio-mode");
   stripA.classList.remove("show");
   stripB.classList.remove("show");
+  bgSc.classList.remove("show");
+  bgB.classList.remove("show");
   bgSc.hidden = true;
+  bgB.hidden = true;
   stripA.hidden = true;
   stripB.hidden = true;
   glowEl.hidden = true;
+  currentBgKey = "";
   playerState.classList.remove("playing");
   playerState.textContent = "待机";
   showToast("本场播放已结束", "ok");
