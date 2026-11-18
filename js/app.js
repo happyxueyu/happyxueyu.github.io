@@ -40,6 +40,7 @@ let playing = false;
 let wakeLock = null;
 let queue = [];        // 当前场次的分段播放列表
 let queueIndex = 0;    // 正在播放第几段
+const prefetched = new Set(); // 已预取的分段地址
 
 /* ---------- 时间工具 ---------- */
 function slotDate(slot, day) {
@@ -134,6 +135,14 @@ video.addEventListener("timeupdate", () => {
   if (!isFinite(video.duration) || !video.duration) return;
   vbFill.style.width = `${(video.currentTime / video.duration) * 100}%`;
   vbTime.textContent = `${fmtShort(video.currentTime)} / ${fmtShort(video.duration)}`;
+  /* 分段预取：当前段播过 60% 即后台下载下一段（经 SW 缓存），段间零等待 */
+  if (playing && queue.length > 1 && queueIndex < queue.length - 1) {
+    const nextUrl = new URL(queue[queueIndex + 1], location.href).href;
+    if (video.currentTime > video.duration * 0.6 && !prefetched.has(nextUrl)) {
+      prefetched.add(nextUrl);
+      fetch(nextUrl).catch(() => prefetched.delete(nextUrl));
+    }
+  }
 });
 video.addEventListener("loadedmetadata", () => {
   vbTime.textContent = `0:00 / ${fmtShort(video.duration)}`;
