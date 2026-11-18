@@ -2,24 +2,29 @@
    精进群工具箱测试 — 定时视频播放（无操作、全自动）
    ------------------------------------------------------------
    修改播放计划：直接编辑下方 SCHEDULE（时间用 24 小时制）
-   video / poster 可以是站内文件路径或 https 链接
+   video 可以是站内文件路径或 https 链接
    ========================================================== */
 "use strict";
 
 /* ---------- 播放计划（可按需修改） ---------- */
 const SCHEDULE = [
-  { id: "am", name: "早课 · 视频1", time: "05:30", video: "test-media/demo-video.mp4", poster: "test-media/poster-am.jpg" },
-  { id: "pm", name: "晚课 · 视频2", time: "20:00", video: "test-media/demo-video.mp4", poster: "test-media/poster-pm.jpg" },
+  { id: "am", name: "早课 · 视频1", time: "05:30", video: "test-media/demo-video.mp4" },
+  { id: "pm", name: "晚课 · 视频2", time: "20:00", video: "test-media/demo-video.mp4" },
 ];
 /* 开播后的宽限期（分钟）：在此时长内打开页面也会补播 */
 const GRACE_MIN = 15;
 
 /* ---------- 元素 ---------- */
 const video = document.getElementById("video");
+const playerWrap = document.getElementById("player-wrap");
 const clockEl = document.getElementById("clock");
 const dateEl = document.getElementById("date-line");
 const countdownEl = document.getElementById("countdown");
 const playerState = document.getElementById("player-state");
+const sbLabel = document.getElementById("sb-label");
+const sbName = document.getElementById("sb-name");
+const sbTime = document.getElementById("sb-time");
+const sbCountdown = document.getElementById("sb-countdown");
 const unmuteBtn = document.getElementById("unmute-btn");
 const wakeHint = document.getElementById("wake-hint");
 
@@ -61,7 +66,7 @@ async function startPlay(slot) {
   setSlotState(slot, "播放中");
   playerState.textContent = "播放中";
   playerState.classList.add("playing");
-  video.removeAttribute("poster");
+  playerWrap.classList.add("playing");
   if (video.src !== new URL(slot.video, location.href).href) {
     video.src = slot.video;
   }
@@ -83,6 +88,7 @@ video.addEventListener("ended", () => {
   video.currentTime = 0;
   video.muted = false;
   unmuteBtn.hidden = true;
+  playerWrap.classList.remove("playing");
   playerState.classList.remove("playing");
   playerState.textContent = "待机";
   showToast("本场播放已结束", "ok");
@@ -95,6 +101,27 @@ video.addEventListener("contextmenu", (e) => e.preventDefault());
 unmuteBtn.addEventListener("click", () => {
   video.muted = false;
   unmuteBtn.hidden = true;
+});
+
+/* ---------- 点击页面任意位置：开启声音 / 预授权后续自动播放 ---------- */
+let primed = false;
+document.addEventListener("click", async () => {
+  if (playing && video.muted) {
+    video.muted = false;
+    unmuteBtn.hidden = true;
+    return;
+  }
+  /* 待机时点一下页面：借这次手势在同一元素上播放并暂停，
+     让浏览器记住本站允许自动播放（之后到点即可有声播放） */
+  if (!playing && !primed && video.src) {
+    primed = true;
+    try {
+      await video.play();
+      video.pause();
+      video.currentTime = 0;
+      showToast("已就绪：到点将自动有声播放", "ok", 2000);
+    } catch { /* 忽略 */ }
+  }
 });
 
 /* ---------- 屏幕常亮（无需点击，加载即申请） ---------- */
@@ -162,11 +189,12 @@ function updateUI() {
   countdownEl.textContent = (isTomorrow ? `明天 ${next.slot.time} ` : `下一场 ${next.slot.time} `)
     + `${next.slot.name}，还有 ${formatSpan(ms)}`;
 
-  /* 待机时：播放器显示下一场的封面图，并预载下一场的视频（到点秒开） */
+  /* 待机层（纯色底）显示下一场信息，并预载下一场的视频（到点秒开） */
   if (!playing) {
-    if (video.poster !== new URL(next.slot.poster, location.href).href) {
-      video.poster = next.slot.poster;
-    }
+    sbLabel.textContent = isTomorrow ? "明天将播放" : "下一场将播放";
+    sbName.textContent = next.slot.name;
+    sbTime.textContent = next.slot.time;
+    sbCountdown.textContent = `距自动播放还有 ${formatSpan(ms)}`;
     if (video.src !== new URL(next.slot.video, location.href).href) {
       video.src = next.slot.video;
     }

@@ -86,6 +86,53 @@ a:hover { text-decoration: underline; }
   pointer-events: none; /* 不允许任何手动控制 */
 }
 
+/* ---------- 播放器待机层（纯色底 + 动态文字） ---------- */
+#player-standby {
+  position: absolute;
+  inset: 0;
+  background: #f0e148; /* 与莲花图标同色 */
+  color: #483414;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 12px;
+  transition: opacity 0.4s ease;
+}
+#player-wrap.playing #player-standby { opacity: 0; pointer-events: none; }
+
+#player-standby img {
+  width: 88px;
+  height: 88px;
+  border-radius: 18px;
+  box-shadow: 0 8px 22px rgba(72, 52, 20, 0.28);
+  margin-bottom: 6px;
+}
+#sb-label { font-size: 14px; font-weight: 600; opacity: 0.85; }
+#sb-name { font-size: 17px; font-weight: 700; }
+#sb-time {
+  font-size: clamp(40px, 8vw, 56px);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 2px;
+  line-height: 1.15;
+}
+#sb-countdown { font-size: 14px; opacity: 0.8; font-variant-numeric: tabular-nums; }
+
+/* ---------- 声音提示 ---------- */
+.sound-hint {
+  margin: 0 0 16px;
+  font-size: 12.5px;
+  color: var(--muted);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 14px;
+  text-align: left;
+}
+.sound-hint strong { color: var(--text); }
+
 #player-state {
   position: absolute;
   top: 10px;

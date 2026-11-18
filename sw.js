@@ -4,7 +4,7 @@
    ========================================================== */
 "use strict";
 
-const CACHE = "jjq-toolbox-v2";
+const CACHE = "jjq-toolbox-v3";
 const PRECACHE = [
   "./",
   "./index.html",
@@ -14,8 +14,6 @@ const PRECACHE = [
   "./css/style.css",
   "./js/app.js",
   "./test-media/demo-video.mp4",
-  "./test-media/poster-am.jpg",
-  "./test-media/poster-pm.jpg",
 ];
 
 self.addEventListener("install", (e) => {
