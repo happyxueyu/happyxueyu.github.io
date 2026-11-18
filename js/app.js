@@ -205,7 +205,7 @@ async function startPlay(slot, opts = {}) {
     stripA.hidden = false;
     stripB.hidden = false;
     glowEl.hidden = false;
-    media = video;
+    media = audioEl;
     video.pause();
     audioEl.src = slot.audio;
     audioEl.muted = video.muted;
