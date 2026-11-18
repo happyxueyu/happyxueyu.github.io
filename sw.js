@@ -4,7 +4,7 @@
    ========================================================== */
 "use strict";
 
-const CACHE = "jjq-toolbox-v4";
+const CACHE = "jjq-toolbox-v5";
 const PRECACHE = [
   "./",
   "./index.html",
@@ -13,7 +13,7 @@ const PRECACHE = [
   "./icons/icon-512.png",
   "./css/style.css",
   "./js/app.js",
-  "./test-media/demo-video.mp4",
+  /* 正式视频体积较大，不预缓存；首次播放后进入运行时缓存，之后离线可用 */
 ];
 
 self.addEventListener("install", (e) => {

@@ -6,10 +6,12 @@
    ========================================================== */
 "use strict";
 
-/* ---------- 播放计划（可按需修改） ---------- */
+/* ---------- 播放计划（可按需修改） ----------
+   videos 是按顺序连续播放的分段列表（分段用于控制单文件体积），
+   全部播完视为本场结束 */
 const SCHEDULE = [
-  { id: "am", name: "早课 · 视频1", time: "05:30", video: "test-media/demo-video.mp4" },
-  { id: "pm", name: "晚课 · 视频2", time: "20:00", video: "test-media/demo-video.mp4" },
+  { id: "am", name: "早课 · 视频1", time: "05:30", videos: ["test-media/am-1.mp4", "test-media/am-2.mp4"] },
+  { id: "pm", name: "晚课 · 视频2", time: "20:00", videos: ["test-media/pm-1.mp4", "test-media/pm-2.mp4", "test-media/pm-3.mp4"] },
 ];
 /* 开播后的宽限期（分钟）：在此时长内打开页面也会补播 */
 const GRACE_MIN = 15;
@@ -35,6 +37,8 @@ const vbTime = document.getElementById("vb-time");
 /* ---------- 状态 ---------- */
 let playing = false;
 let wakeLock = null;
+let queue = [];        // 当前场次的分段播放列表
+let queueIndex = 0;    // 正在播放第几段
 
 /* ---------- 时间工具 ---------- */
 function slotDate(slot, day) {
@@ -68,12 +72,16 @@ async function startPlay(slot) {
   playing = true;
   markPlayed(slot);
   setSlotState(slot, "播放中");
-  playerState.textContent = "播放中";
   playerState.classList.add("playing");
   playerWrap.classList.add("playing");
-  if (video.src !== new URL(slot.video, location.href).href) {
-    video.src = slot.video;
-  }
+  queue = slot.videos.slice();
+  queueIndex = 0;
+  await playCurrentPart();
+}
+
+async function playCurrentPart() {
+  playerState.textContent = queue.length > 1 ? `播放中 ${queueIndex + 1}/${queue.length}` : "播放中";
+  video.src = queue[queueIndex];
   video.currentTime = 0;
   try {
     await video.play(); /* 直接尝试有声播放 */
@@ -86,7 +94,13 @@ async function startPlay(slot) {
 }
 
 video.addEventListener("ended", () => {
-  /* 播放一遍即停 */
+  if (playing && queueIndex < queue.length - 1) {
+    /* 还有下一段：无缝接播 */
+    queueIndex += 1;
+    playCurrentPart();
+    return;
+  }
+  /* 全部段落播完 → 本场结束，一遍即停 */
   playing = false;
   video.pause();
   video.currentTime = 0;
@@ -215,14 +229,15 @@ function updateUI() {
   countdownEl.textContent = (isTomorrow ? `明天 ${next.slot.time} ` : `下一场 ${next.slot.time} `)
     + `${next.slot.name}，还有 ${formatSpan(ms)}`;
 
-  /* 待机层（纯色底）显示下一场信息，并预载下一场的视频（到点秒开） */
+  /* 待机层（纯色底）显示下一场信息，并预载下一场的首段视频（到点秒开） */
   if (!playing) {
     sbLabel.textContent = isTomorrow ? "明天将播放" : "下一场将播放";
     sbName.textContent = next.slot.name;
     sbTime.textContent = next.slot.time;
     sbCountdown.textContent = `距自动播放还有 ${formatSpan(ms)}`;
-    if (video.src !== new URL(next.slot.video, location.href).href) {
-      video.src = next.slot.video;
+    const firstVideo = new URL(next.slot.videos[0], location.href).href;
+    if (video.src !== firstVideo) {
+      video.src = next.slot.videos[0];
     }
   }
 }
