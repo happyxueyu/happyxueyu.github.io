@@ -228,18 +228,19 @@ a:hover { text-decoration: underline; }
   z-index: 5;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   font-family: var(--font);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: #fff;
   background: rgba(0, 0, 0, 0.62);
   border: 1px solid var(--border-strong);
   border-radius: 999px;
-  padding: 9px 16px;
+  padding: 7px 13px;
   cursor: pointer;
   backdrop-filter: blur(6px);
   pointer-events: auto;
+  white-space: nowrap;
   animation: mute-pulse 1.6s infinite;
 }
 #unmute-btn .mute-ic { font-size: 18px; line-height: 1; }
@@ -271,6 +272,54 @@ a:hover { text-decoration: underline; }
 @keyframes dot-bounce {
   0%, 100% { opacity: 0.25; transform: translateY(0); }
   50% { opacity: 1; transform: translateY(-6px); }
+}
+
+/* ---------- 刷新按钮 ---------- */
+#refresh-btn {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 25;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: rgba(11, 14, 23, 0.6);
+  color: var(--muted);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition: 0.2s;
+}
+#refresh-btn:hover { color: var(--text); border-color: var(--border-strong); transform: rotate(180deg); }
+
+/* ---------- 全屏按钮（vbar 内，可点） ---------- */
+#fs-btn {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  display: inline-grid;
+  place-items: center;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.92);
+  cursor: pointer;
+  pointer-events: auto; /* vbar 整体不可点，此按钮例外 */
+  border-radius: 6px;
+}
+#fs-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.15); }
+#fs-btn svg { width: 18px; height: 18px; }
+
+/* 横屏全屏状态：铺满屏幕 */
+#player-wrap:fullscreen {
+  aspect-ratio: auto;
+  max-width: none;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  border: none;
+  border-radius: 0;
 }
 
 /* ---------- 底部备注（常显） ---------- */

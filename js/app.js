@@ -321,6 +321,34 @@ fetch(new Request("config.json", { cache: "no-store" }))
   .catch(() => { /* 离线或配置缺失：使用内置默认 */ })
   .finally(initApp);
 
+/* ---------- 刷新按钮 ---------- */
+document.getElementById("refresh-btn").addEventListener("click", () => location.reload());
+
+/* ---------- 横屏全屏 ---------- */
+const fsBtn = document.getElementById("fs-btn");
+const fsOpen = document.getElementById("fs-open");
+const fsClose = document.getElementById("fs-close");
+fsBtn.addEventListener("click", async () => {
+  try {
+    if (document.fullscreenElement) {
+      await document.exitFullscreen();
+    } else {
+      await playerWrap.requestFullscreen();
+      /* 手机上尝试锁横屏（部分浏览器支持，失败不影响全屏） */
+      if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock("landscape").catch(() => {});
+      }
+    }
+  } catch {
+    showToast("当前浏览器不支持全屏", "error");
+  }
+});
+document.addEventListener("fullscreenchange", () => {
+  const on = !!document.fullscreenElement;
+  fsOpen.style.display = on ? "none" : "";
+  fsClose.style.display = on ? "" : "none";
+});
+
 /* ---------- Toast ---------- */
 function showToast(message, type = "info", duration = 2600) {
   let container = document.getElementById("toast-container");
