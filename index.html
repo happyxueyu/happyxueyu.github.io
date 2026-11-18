@@ -12,40 +12,37 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <!-- 视频层：无任何控制，仅由定时器驱动 -->
-  <video id="video" playsinline preload="auto" disablepictureinpicture></video>
+  <main class="page">
+    <h1 id="site-title">精进群工具箱测试</h1>
+    <div id="clock">--:--:--</div>
+    <div id="date-line">—</div>
 
-  <!-- 播放期间若被迫静音，显示开启声音按钮 -->
+    <!-- 内嵌播放器：待机时显示下一场封面，到点在此自动播放，全程不可操作 -->
+    <div id="player-wrap">
+      <video id="video" playsinline preload="auto" disablepictureinpicture></video>
+      <div id="player-state">待机</div>
+    </div>
+
+    <div class="slots">
+      <div class="slot" id="slot-am">
+        <span class="slot-time">05:30</span>
+        <span class="slot-name">早课 · 视频1</span>
+        <span class="slot-state">待播放</span>
+      </div>
+      <div class="slot" id="slot-pm">
+        <span class="slot-time">20:00</span>
+        <span class="slot-name">晚课 · 视频2</span>
+        <span class="slot-state">待播放</span>
+      </div>
+    </div>
+
+    <div id="countdown">—</div>
+    <div class="hint muted" id="wake-hint"></div>
+  </main>
+
+  <!-- 仅当浏览器拒绝有声自动播放时出现 -->
   <button id="unmute-btn" hidden title="开启声音">🔇 点击开启声音</button>
 
-  <!-- 待机界面：非播放时段显示 -->
-  <div id="standby">
-    <div class="standby-card">
-      <h1 id="site-title">精进群工具箱测试</h1>
-      <div id="clock">--:--:--</div>
-      <div id="date-line">—</div>
-
-      <div class="slots">
-        <div class="slot" id="slot-am">
-          <span class="slot-time">05:30</span>
-          <span class="slot-name">早课 · 视频1</span>
-          <span class="slot-state">待播放</span>
-        </div>
-        <div class="slot" id="slot-pm">
-          <span class="slot-time">20:00</span>
-          <span class="slot-name">晚课 · 视频2</span>
-          <span class="slot-state">待播放</span>
-        </div>
-      </div>
-
-      <div id="countdown">—</div>
-      <button id="sound-btn">🔔 点击开启声音，等待定时播放</button>
-      <div class="hint">开启后请保持本页面打开，到点将自动播放（播放一遍即停）</div>
-      <div class="hint muted" id="wake-hint"></div>
-    </div>
-  </div>
-
-  <!-- 底部备注（常显） -->
   <footer id="note">注：本视频为测试用途，若有问题可直接反馈至
     <a href="mailto:329665584@qq.com">329665584@qq.com</a>
   </footer>

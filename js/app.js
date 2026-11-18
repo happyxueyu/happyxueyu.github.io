@@ -1,37 +1,31 @@
 /* ==========================================================
-   精进群工具箱测试 — 定时视频播放
+   精进群工具箱测试 — 定时视频播放（无操作、全自动）
    ------------------------------------------------------------
    修改播放计划：直接编辑下方 SCHEDULE（时间用 24 小时制）
-   视频可以是站内文件（如 test-media/xxx.mp4）或 https 链接
+   video / poster 可以是站内文件路径或 https 链接
    ========================================================== */
 "use strict";
 
 /* ---------- 播放计划（可按需修改） ---------- */
 const SCHEDULE = [
-  { id: "am", name: "早课 · 视频1", time: "05:30", video: "test-media/demo-video.mp4" },
-  { id: "pm", name: "晚课 · 视频2", time: "20:00", video: "test-media/demo-video.mp4" },
+  { id: "am", name: "早课 · 视频1", time: "05:30", video: "test-media/demo-video.mp4", poster: "test-media/poster-am.jpg" },
+  { id: "pm", name: "晚课 · 视频2", time: "20:00", video: "test-media/demo-video.mp4", poster: "test-media/poster-pm.jpg" },
 ];
 /* 开播后的宽限期（分钟）：在此时长内打开页面也会补播 */
 const GRACE_MIN = 15;
 
 /* ---------- 元素 ---------- */
 const video = document.getElementById("video");
-const standby = document.getElementById("standby");
 const clockEl = document.getElementById("clock");
 const dateEl = document.getElementById("date-line");
 const countdownEl = document.getElementById("countdown");
-const soundBtn = document.getElementById("sound-btn");
+const playerState = document.getElementById("player-state");
 const unmuteBtn = document.getElementById("unmute-btn");
 const wakeHint = document.getElementById("wake-hint");
 
 /* ---------- 状态 ---------- */
 let playing = false;
-let audioUnlocked = false;
 let wakeLock = null;
-
-/* 预加载第一段视频（也用于声音解锁） */
-video.src = SCHEDULE[0].video;
-video.muted = false;
 
 /* ---------- 时间工具 ---------- */
 function slotDate(slot, day) {
@@ -65,18 +59,20 @@ async function startPlay(slot) {
   playing = true;
   markPlayed(slot);
   setSlotState(slot, "播放中");
+  playerState.textContent = "播放中";
+  playerState.classList.add("playing");
+  video.removeAttribute("poster");
   if (video.src !== new URL(slot.video, location.href).href) {
     video.src = slot.video;
   }
   video.currentTime = 0;
-  standby.classList.add("hidden");
   try {
-    await video.play();
+    await video.play(); /* 直接尝试有声播放 */
   } catch {
-    /* 浏览器阻止了有声自动播放 → 静音播放并给出开启按钮 */
+    /* 浏览器安全策略拦截有声自动播放 → 静音自动播，给出可选的声音开关 */
     video.muted = true;
     unmuteBtn.hidden = false;
-    try { await video.play(); } catch { showToast("视频无法自动播放，请刷新页面并点击开启声音", "error", 5000); }
+    try { await video.play(); } catch { showToast("视频无法自动播放，请刷新页面重试", "error", 5000); }
   }
 }
 
@@ -87,37 +83,21 @@ video.addEventListener("ended", () => {
   video.currentTime = 0;
   video.muted = false;
   unmuteBtn.hidden = true;
-  standby.classList.remove("hidden");
+  playerState.classList.remove("playing");
+  playerState.textContent = "待机";
   showToast("本场播放已结束", "ok");
   updateUI();
 });
 
-/* 禁止一切手动控制入口 */
+/* 禁止手动控制入口 */
 video.addEventListener("contextmenu", (e) => e.preventDefault());
-
-/* ---------- 声音解锁（到点有声自动播放的前提） ---------- */
-soundBtn.addEventListener("click", async () => {
-  if (playing) return; /* 恰逢定时播放开始时不再干预 */
-  try {
-    /* 借用户手势在同一元素上播放并立即暂停，解锁后续程序化播放 */
-    await video.play();
-    video.pause();
-    video.currentTime = 0;
-    audioUnlocked = true;
-    soundBtn.textContent = "✓ 声音已就绪，等待定时播放";
-    soundBtn.disabled = true;
-    requestWakeLock();
-  } catch {
-    showToast("浏览器仍限制自动播放，请再点一次", "error");
-  }
-});
 
 unmuteBtn.addEventListener("click", () => {
   video.muted = false;
   unmuteBtn.hidden = true;
 });
 
-/* ---------- 屏幕常亮（防止到点时设备已休眠） ---------- */
+/* ---------- 屏幕常亮（无需点击，加载即申请） ---------- */
 async function requestWakeLock() {
   try {
     if ("wakeLock" in navigator) {
@@ -131,14 +111,34 @@ async function requestWakeLock() {
     wakeHint.textContent = "屏幕常亮开启失败，建议手动设置设备不休眠";
   }
 }
+requestWakeLock();
 document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "visible" && audioUnlocked && !wakeLock) requestWakeLock();
+  if (document.visibilityState === "visible" && !wakeLock) requestWakeLock();
 });
 
 /* ---------- 界面刷新 ---------- */
 function setSlotState(slot, text) {
   const el = document.getElementById(`slot-${slot.id}`);
   if (el) el.querySelector(".slot-state").textContent = text;
+}
+
+function nextSlotInfo() {
+  /* 返回 { slot, date }：今天下一个未播场次；都播完则取明天第一场 */
+  const now = new Date();
+  const t = now.getTime();
+  let best = null;
+  for (const slot of SCHEDULE) {
+    if (isPlayed(slot)) continue;
+    const start = slotDate(slot).getTime();
+    if (t < start && (!best || start < slotDate(best).getTime())) best = slot;
+  }
+  if (best) return { slot: best, date: now };
+  const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+  best = SCHEDULE[0];
+  for (const slot of SCHEDULE) {
+    if (slotDate(slot, tomorrow) < slotDate(best, tomorrow)) best = slot;
+  }
+  return { slot: best, date: tomorrow };
 }
 
 function updateUI() {
@@ -148,31 +148,28 @@ function updateUI() {
     + ` · ${now.getFullYear()} 年 ${now.getMonth() + 1} 月 ${now.getDate()} 日`;
 
   const t = now.getTime();
-  let next = null;      // 下一个未播且未过期的场次
   for (const slot of SCHEDULE) {
     const start = slotDate(slot).getTime();
     if (isPlayed(slot)) { setSlotState(slot, "已播放"); continue; }
-    if (t < start) {
-      setSlotState(slot, "待播放");
-      if (!next || start < slotDate(next).getTime()) next = slot;
-    } else if (t <= start + GRACE_MIN * 60000) {
-      setSlotState(slot, playing ? "播放中" : "即将播放");
-    } else {
-      setSlotState(slot, "已错过");
-    }
+    if (t < start) setSlotState(slot, "待播放");
+    else if (t <= start + GRACE_MIN * 60000) setSlotState(slot, playing ? "播放中" : "即将播放");
+    else setSlotState(slot, "已错过");
   }
-  /* 今天都播完/错过 → 倒计时指向明天第一场 */
-  if (!next) {
-    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-    next = SCHEDULE[0];
-    for (const slot of SCHEDULE) {
-      if (slotDate(slot, tomorrow) < slotDate(next, tomorrow)) next = slot;
+
+  const next = nextSlotInfo();
+  const isTomorrow = next.date !== now && next.date.toDateString() !== now.toDateString();
+  const ms = slotDate(next.slot, next.date).getTime() - t;
+  countdownEl.textContent = (isTomorrow ? `明天 ${next.slot.time} ` : `下一场 ${next.slot.time} `)
+    + `${next.slot.name}，还有 ${formatSpan(ms)}`;
+
+  /* 待机时：播放器显示下一场的封面图，并预载下一场的视频（到点秒开） */
+  if (!playing) {
+    if (video.poster !== new URL(next.slot.poster, location.href).href) {
+      video.poster = next.slot.poster;
     }
-    const ms = slotDate(next, tomorrow).getTime() - t;
-    countdownEl.textContent = `明天 ${next.time} ${next.name}，还有 ${formatSpan(ms)}`;
-  } else {
-    const ms = slotDate(next).getTime() - t;
-    countdownEl.textContent = `下一场 ${next.time} ${next.name}，还有 ${formatSpan(ms)}`;
+    if (video.src !== new URL(next.slot.video, location.href).href) {
+      video.src = next.slot.video;
+    }
   }
 }
 
