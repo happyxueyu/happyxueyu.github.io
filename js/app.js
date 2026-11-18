@@ -16,13 +16,13 @@ const DEFAULT_SCHEDULE = [
     id: "am", name: "早课 · 视频1", time: "05:30",
     audio: "test-media/am-audio.m4a", bg: "test-media/bg-am.jpg",
     durationSec: 3738.13,
-    scenes: [{ t: 0, strip: "test-media/strips/am-00000.jpg" }],
+    scenes: [{ t: 0, strip: "test-media/strips/am-00000.png" }],
   },
   {
     id: "pm", name: "晚课 · 视频2", time: "20:00",
     audio: "test-media/pm-audio.m4a", bg: "test-media/bg-pm.jpg",
     durationSec: 7352.85,
-    scenes: [{ t: 0, strip: "test-media/strips/pm-00000.jpg" }],
+    scenes: [{ t: 0, strip: "test-media/strips/pm-00000.png" }],
   },
 ];
 const DEFAULT_GRACE_MIN = 15; /* 兜底：无时长信息时的最短进场窗口 */
@@ -485,11 +485,11 @@ function updateUI() {
     if (playing && currentSlot === slot) { setSlotState(slot, "播放中"); continue; }
     const start = slotDate(slot).getTime();
     if (live && live.slot === slot) {
-      setSlotState(slot, finishedToday.has(finishKey(slot)) ? "已结束" : "播放中");
+      setSlotState(slot, finishedToday.has(finishKey(slot)) ? "播放结束" : "播放中");
       continue;
     }
-    if (isPlayed(slot)) { setSlotState(slot, "已播放"); continue; }
-    setSlotState(slot, now.getTime() < start ? "待播放" : "已结束");
+    if (isPlayed(slot)) { setSlotState(slot, "播放结束"); continue; }
+    setSlotState(slot, now.getTime() < start ? "待播放" : "播放结束");
   }
 
   const next = nextSlotInfo();
