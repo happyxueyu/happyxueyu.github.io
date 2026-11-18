@@ -1,12 +1,12 @@
 {
-  "name": "AIGC 工具箱",
-  "short_name": "AIGC工具箱",
-  "description": "音频播放、视频播放与媒体小工具，全部在浏览器本地运行，文件不上传。",
+  "name": "精进群工具箱测试",
+  "short_name": "精进群工具箱",
+  "description": "定时自动播放指定视频：早 5:30 与晚 20:00 各播放一遍即停。",
   "lang": "zh-CN",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "orientation": "portrait-primary",
+  "orientation": "any",
   "theme_color": "#0b0e17",
   "background_color": "#0b0e17",
   "icons": [
