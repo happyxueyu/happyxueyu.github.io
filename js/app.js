@@ -102,11 +102,16 @@ function liveSession() {
   return null;
 }
 
+/* ---------- 已结束场次记录（防止直播窗口内反复重播/误显示播放中） ---------- */
+const finishedToday = new Set(); /* 运行期记录：本页面已完整看完的场次 */
+function finishKey(slot) { return slot.id + "_" + dayKey(); }
+
 /* ---------- 定时检查（直播式：直播时段进场一律加入同步） ---------- */
 function checkSchedule() {
   if (playing) return;
   const live = liveSession();
   if (!live) return;
+  if (finishedToday.has(finishKey(live.slot))) return; /* 本场已放完，不再重播 */
   const dur = live.slot.durationSec || Infinity;
   if (live.elapsed < dur) {
     startPlay(live.slot, { live: true, seek: live.elapsed });
@@ -323,6 +328,7 @@ onMediaEvent(video);
 onMediaEvent(audioEl);
 
 function finishSession() {
+  if (currentSlot) finishedToday.add(finishKey(currentSlot));
   playing = false;
   liveMode = false;
   currentSlot = null;
@@ -471,7 +477,10 @@ function updateUI() {
   for (const slot of SCHEDULE) {
     if (playing && currentSlot === slot) { setSlotState(slot, "播放中"); continue; }
     const start = slotDate(slot).getTime();
-    if (live && live.slot === slot) { setSlotState(slot, "播放中"); continue; }
+    if (live && live.slot === slot) {
+      setSlotState(slot, finishedToday.has(finishKey(slot)) ? "已结束" : "播放中");
+      continue;
+    }
     if (isPlayed(slot)) { setSlotState(slot, "已播放"); continue; }
     setSlotState(slot, now.getTime() < start ? "待播放" : "已结束");
   }
