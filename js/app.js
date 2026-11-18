@@ -201,6 +201,10 @@ async function startPlay(slot, opts = {}) {
   if (slot.audio) {
     /* —— 音频+图片模式（支持精准同步进场） —— */
     playerWrap.classList.add("audio-mode");
+    bgSc.hidden = false;
+    stripA.hidden = false;
+    stripB.hidden = false;
+    glowEl.hidden = false;
     media = video;
     video.pause();
     audioEl.src = slot.audio;
@@ -340,6 +344,9 @@ function finishSession() {
   playerWrap.classList.remove("playing", "audio-mode");
   stripA.classList.remove("show");
   stripB.classList.remove("show");
+  bgSc.hidden = true;
+  stripA.hidden = true;
+  stripB.hidden = true;
   glowEl.hidden = true;
   playerState.classList.remove("playing");
   playerState.textContent = "待机";
