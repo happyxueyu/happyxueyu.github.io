@@ -13,44 +13,52 @@
     <h1>定时播放 · 后台管理</h1>
     <p class="muted small">修改保存后，GitHub Pages 约 1~2 分钟自动重建生效，所有访客将按新时间表播放。</p>
 
-    <!-- 第一步：访问令牌 -->
-    <section class="admin-card">
-      <h2>1. 管理员令牌</h2>
+    <!-- 密码门禁 -->
+    <section class="admin-card" id="gate-card">
+      <h2>请输入管理密码</h2>
+      <div class="token-row">
+        <input type="password" id="pass-input" placeholder="管理密码" autocomplete="off">
+        <button class="btn btn-primary" id="btn-pass">进入</button>
+      </div>
+      <div id="gate-status" class="small muted"></div>
+    </section>
+
+    <!-- 令牌（仅在尚未配置时显示） -->
+    <section class="admin-card" id="token-card" hidden>
+      <h2>首次设置：绑定 GitHub 凭证（仅一次）</h2>
+      <p class="muted small">绑定后，以后任何设备只需要管理密码即可。</p>
       <div class="token-row">
         <input type="password" id="token-input" placeholder="粘贴 GitHub 细粒度访问令牌（仅本仓库 Contents 读写）" autocomplete="off">
         <button class="btn btn-primary" id="btn-token">验证并保存</button>
       </div>
-      <div id="token-status" class="small muted">未验证</div>
+      <div id="token-status" class="small muted"></div>
       <details class="small muted token-help">
         <summary>如何创建令牌？（点开看步骤）</summary>
         <ol>
           <li>登录 GitHub → 右上角头像 → <strong>Settings</strong></li>
           <li>左侧最底 <strong>Developer settings</strong> → <strong>Personal access tokens</strong> → <strong>Fine-grained tokens</strong></li>
-          <li><strong>Generate new token</strong>：名称随意；Expiration 建议选长一些；Repository access 选 <strong>Only select repositories</strong> → 选 <code>happyxueyu/happyxueyu.github.io</code></li>
+          <li><strong>Generate new token</strong>：名称随意；Repository access 选 <strong>Only select repositories</strong> → 选 <code>happyxueyu/happyxueyu.github.io</code></li>
           <li>Permissions → Repository permissions → <strong>Contents</strong> 设为 <strong>Read and write</strong>，其余保持默认</li>
           <li>生成后复制令牌（只显示一次），粘贴到上面输入框</li>
         </ol>
       </details>
     </section>
 
-    <!-- 第二步：编辑配置 -->
-    <section class="admin-card">
-      <h2>2. 播放计划</h2>
-      <div id="editor" hidden>
-        <div class="grace-row">
-          <label for="grace-input">开课后补播宽限期（分钟）</label>
-          <input type="number" id="grace-input" min="1" max="120" step="1">
-        </div>
-        <div id="session-list"></div>
-        <button class="btn" id="btn-add">＋ 增加一场</button>
+    <!-- 编辑配置 -->
+    <section class="admin-card" id="editor-card" hidden>
+      <h2>播放计划</h2>
+      <div class="grace-row">
+        <label for="grace-input">开课后补播宽限期（分钟）</label>
+        <input type="number" id="grace-input" min="1" max="120" step="1">
       </div>
-      <div id="editor-loading" class="muted">令牌验证后加载当前配置…</div>
+      <div id="session-list"></div>
+      <button class="btn" id="btn-add">＋ 增加一场</button>
     </section>
 
     <!-- 保存 -->
-    <section class="admin-card admin-actions">
-      <button class="btn btn-primary" id="btn-save" disabled>保存并发布</button>
-      <a class="btn" href="index.html">返回播放页</a>
+    <section class="admin-card admin-actions" id="save-card" hidden>
+      <button class="btn btn-primary" id="btn-save">保存并发布</button>
+      <button class="btn" id="btn-logout">退出管理</button>
       <span id="save-status" class="small muted"></span>
     </section>
   </main>

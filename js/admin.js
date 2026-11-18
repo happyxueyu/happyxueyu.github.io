@@ -1,27 +1,92 @@
 /* ==========================================================
-   精进群工具箱 — 后台管理页
-   用 GitHub 细粒度令牌直接更新仓库中的 config.json，
-   Pages 重建后全体访客生效。令牌只保存在本浏览器。
+   精进群工具箱 — 后台管理页（密码门禁版）
+   日常使用：输入管理密码即可修改播放计划。
+   GitHub 凭证来源（按优先级）：
+   1. EMBEDDED_TOKEN_B64（预嵌入，联系管理员更新）
+   2. 本浏览器 localStorage（首次设置时粘贴保存）
    ========================================================== */
 "use strict";
 
 const REPO = "happyxueyu/happyxueyu.github.io";
 const TOKEN_KEY = "jjq_admin_token";
+const GATE_KEY = "jjq_admin_unlocked";
 
+/* 管理密码（SHA-256，修改密码请联系管理员更新此哈希） */
+const PASS_HASH = "5b362a2d2154c238a96cdea333f2e0875a5a3736881965280842d4a383cb3f45";
+
+/* 预嵌入凭证位（base64 的细粒度令牌，留空表示未嵌入） */
+const EMBEDDED_TOKEN_B64 = "";
+
+/* ---------- 元素 ---------- */
+const gateCard = document.getElementById("gate-card");
+const passInput = document.getElementById("pass-input");
+const btnPass = document.getElementById("btn-pass");
+const gateStatus = document.getElementById("gate-status");
+const tokenCard = document.getElementById("token-card");
 const tokenInput = document.getElementById("token-input");
 const btnToken = document.getElementById("btn-token");
 const tokenStatus = document.getElementById("token-status");
-const editor = document.getElementById("editor");
-const editorLoading = document.getElementById("editor-loading");
+const editorCard = document.getElementById("editor-card");
 const sessionList = document.getElementById("session-list");
 const graceInput = document.getElementById("grace-input");
 const btnAdd = document.getElementById("btn-add");
+const saveCard = document.getElementById("save-card");
 const btnSave = document.getElementById("btn-save");
+const btnLogout = document.getElementById("btn-logout");
 const saveStatus = document.getElementById("save-status");
 
-let token = localStorage.getItem(TOKEN_KEY) || "";
+let token = "";
 let tokenOK = false;
-let editing = [];   // 正在编辑的场次
+let unlocked = sessionStorage.getItem(GATE_KEY) === "1";
+let editing = [];
+
+/* ---------- 密码门禁 ---------- */
+async function sha256Hex(text) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function tryUnlock() {
+  if (!window.crypto || !crypto.subtle) {
+    gateStatus.textContent = "当前环境不支持（请在线访问本页）";
+    return;
+  }
+  const hash = await sha256Hex(passInput.value);
+  if (hash === PASS_HASH) {
+    unlocked = true;
+    sessionStorage.setItem(GATE_KEY, "1");
+    enterAdmin();
+  } else {
+    gateStatus.textContent = "密码不正确";
+    gateStatus.className = "small err-text";
+  }
+  passInput.value = "";
+}
+
+btnPass.addEventListener("click", tryUnlock);
+passInput.addEventListener("keydown", (e) => { if (e.key === "Enter") tryUnlock(); });
+
+btnLogout.addEventListener("click", () => {
+  sessionStorage.removeItem(GATE_KEY);
+  location.reload();
+});
+
+/* ---------- 进入管理界面 ---------- */
+function enterAdmin() {
+  gateCard.hidden = true;
+  // 令牌来源：预嵌入 > 本浏览器保存
+  const embedded = EMBEDDED_TOKEN_B64 ? atob(EMBEDDED_TOKEN_B64) : "";
+  token = embedded || localStorage.getItem(TOKEN_KEY) || "";
+  if (token) {
+    tokenCard.hidden = true;
+    validateAndLoad();
+  } else {
+    tokenCard.hidden = false;
+    saveCard.hidden = false;
+    btnSave.disabled = true;
+    tokenStatus.textContent = "尚未绑定凭证";
+  }
+}
 
 /* ---------- GitHub API ---------- */
 async function api(path, opts = {}) {
@@ -41,47 +106,35 @@ async function api(path, opts = {}) {
   return r.json();
 }
 
-function b64(str) {
-  return btoa(unescape(encodeURIComponent(str)));
-}
-
-/* ---------- 令牌验证 ---------- */
-async function validateToken(showToastOnFail = false) {
-  tokenOK = false;
-  if (!token) return false;
+async function validateAndLoad() {
   try {
     const repo = await api("/repos/" + REPO);
     if (!repo.permissions || !repo.permissions.push) {
-      throw new Error("令牌没有本仓库的写入权限，请按帮助步骤重新创建");
+      throw new Error("凭证没有本仓库写入权限，请重新绑定");
     }
     tokenOK = true;
-    tokenStatus.textContent = "✓ 令牌有效（可写入仓库）";
-    tokenStatus.className = "small ok-text";
-    return true;
+    tokenCard.hidden = true;
   } catch (e) {
+    tokenOK = false;
+    tokenCard.hidden = false;
     tokenStatus.textContent = "✗ " + e.message;
     tokenStatus.className = "small err-text";
-    if (showToastOnFail) showToast("令牌验证失败：" + e.message, "error", 4000);
-    return false;
+    btnSave.disabled = true;
+    return;
   }
+  await loadConfig();
 }
 
 btnToken.addEventListener("click", async () => {
   token = tokenInput.value.trim();
   if (!token) { showToast("请先粘贴令牌", "error"); return; }
   localStorage.setItem(TOKEN_KEY, token);
-  const ok = await validateToken(true);
-  if (ok) {
-    showToast("令牌验证成功", "ok");
-    await loadConfig();
-  }
+  await validateAndLoad();
+  if (tokenOK) showToast("绑定成功，以后只需密码", "ok");
 });
 
 /* ---------- 配置加载与编辑 ---------- */
 async function loadConfig() {
-  editorLoading.hidden = false;
-  editor.hidden = true;
-  btnSave.disabled = true;
   try {
     const r = await fetch("config.json", { cache: "no-store" });
     if (!r.ok) throw new Error("HTTP " + r.status);
@@ -93,12 +146,12 @@ async function loadConfig() {
       time: s.time || "08:00",
       videos: (s.videos || []).join("\n"),
     }));
-    editorLoading.hidden = true;
-    editor.hidden = false;
+    editorCard.hidden = false;
+    saveCard.hidden = false;
     btnSave.disabled = false;
     renderEditor();
   } catch {
-    editorLoading.textContent = "配置加载失败，请刷新页面重试（网络原因）";
+    showToast("配置加载失败，请刷新重试", "error");
   }
 }
 
@@ -146,7 +199,7 @@ btnAdd.addEventListener("click", () => {
 
 /* ---------- 保存 ---------- */
 btnSave.addEventListener("click", async () => {
-  if (!tokenOK) { showToast("请先验证令牌", "error"); return; }
+  if (!tokenOK) { showToast("凭证不可用，请先重新绑定", "error"); return; }
   const schedule = editing
     .filter((s) => s.videos.trim())
     .map((s) => ({
@@ -170,7 +223,7 @@ btnSave.addEventListener("click", async () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         message: "后台更新播放计划：" + schedule.map((s) => s.time + " " + s.name).join("；"),
-        content: b64(content),
+        content: btoa(unescape(encodeURIComponent(content))),
         sha: cur.sha,
       }),
     });
@@ -185,12 +238,7 @@ btnSave.addEventListener("click", async () => {
 });
 
 /* ---------- 启动 ---------- */
-if (token) {
-  tokenInput.value = token.slice(0, 4) + "…" + token.slice(-4);
-  (async () => {
-    if (await validateToken(false)) await loadConfig();
-  })();
-}
+if (unlocked) enterAdmin();
 
 /* ---------- Toast ---------- */
 function showToast(message, type = "info", duration = 2600) {
