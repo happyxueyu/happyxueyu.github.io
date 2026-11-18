@@ -212,7 +212,8 @@ a:hover { text-decoration: underline; }
   to { transform: rotate(360deg); }
 }
 
-#player-wrap.audio-mode #video { display: none; }
+/* 音频模式下视频元素仅作声音载体：透明但保持渲染（iOS 对 display:none 的视频可能暂停） */
+#player-wrap.audio-mode #video { opacity: 0; pointer-events: none; }
 #player-wrap:not(.audio-mode) #bg-scene,
 #player-wrap:not(.audio-mode) #strip-a,
 #player-wrap:not(.audio-mode) #strip-b,

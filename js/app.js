@@ -230,31 +230,35 @@ async function startPlay(slot, opts = {}) {
   queueIndex = 0;
 
   if (slot.audio) {
-    /* —— 音频+图片模式（支持精准同步进场） —— */
+    /* —— 音频+图片模式（支持精准同步进场） ——
+       关键：把音频文件装进 video 元素播放。手机浏览器（iOS/微信）
+       禁止 audio 自动播放，但允许"静音视频"自动播放——视频元素
+       在此处仅作为声音载体（CSS 已隐藏），画面由图片层呈现 */
     playerWrap.classList.add("audio-mode");
     bgSc.hidden = false;
     bgB.hidden = false;
     stripA.hidden = false;
     stripB.hidden = false;
     glowEl.hidden = false;
-    media = audioEl;
-    video.pause();
-    audioEl.src = slot.audio;
-    audioEl.muted = video.muted;
+    media = video;
+    audioEl.pause();
+    audioEl.removeAttribute("src");
+    video.src = slot.audio;
+    video.muted = false;
     playerState.textContent = "播放中";
     currentSceneKey = "";
     currentBgKey = "";
     preloadScenes(slot);
     const seekTo = () => {
-      if (opts.seek > 0 && isFinite(audioEl.duration)) {
-        audioEl.currentTime = Math.min(opts.seek, Math.max(0, audioEl.duration - 1));
+      if (opts.seek > 0 && isFinite(video.duration)) {
+        video.currentTime = Math.min(opts.seek, Math.max(0, video.duration - 1));
       }
-      audioEl.removeEventListener("loadedmetadata", seekTo);
+      video.removeEventListener("loadedmetadata", seekTo);
     };
-    audioEl.addEventListener("loadedmetadata", seekTo);
+    video.addEventListener("loadedmetadata", seekTo);
     syncBgToTime(opts.seek || 0);
     syncSceneToTime(opts.seek || 0);
-    await tryPlay(audioEl);
+    await tryPlay(video);
   } else {
     /* —— 视频模式（分段连播 + 精准同步进场） —— */
     playerWrap.classList.remove("audio-mode");
@@ -433,6 +437,13 @@ function updateMuteBadge() {
 }
 unmuteBtn.addEventListener("click", () => { media.muted = false; });
 
+/* ---------- 微信内就绪后补一次播放（微信限制自动播放的特殊处理） ---------- */
+document.addEventListener("WeixinJSBridgeReady", () => {
+  if (playing && media && media.paused && media.src) {
+    media.play().catch(() => {});
+  }
+}, false);
+
 /* ---------- 点击页面任意位置：开声音 / 预授权 ---------- */
 let primed = false;
 document.addEventListener("click", async () => {
@@ -545,7 +556,7 @@ function updateUI() {
     sbCountdown.textContent = `距自动播放还有 ${formatSpan(ms)}`;
     if (next.slot.audio) {
       const url = new URL(next.slot.audio, location.href).href;
-      if (audioEl.src !== url) audioEl.src = next.slot.audio;
+      if (video.src !== url) video.src = next.slot.audio; /* 预载下一场音频（经视频元素） */
     } else if (next.slot.videos && next.slot.videos.length) {
       const url = new URL(next.slot.videos[0], location.href).href;
       if (video.src !== url) video.src = next.slot.videos[0];
