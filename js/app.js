@@ -511,6 +511,7 @@ function formatSpan(ms) {
 function tick() {
   if (!playing) checkSchedule();
   updateUI();
+  counterTick();
 }
 
 /* ---------- 刷新按钮 ---------- */
@@ -586,6 +587,79 @@ fetch(new Request("config.json", { cache: "no-store" }))
   })
   .catch(() => { /* 离线或缺失：使用默认 */ })
   .finally(initApp);
+
+/* ---------- 分时段访问统计（Abacus 免费计数服务，实时显示） ---------- */
+const COUNT_WINDOWS = [
+  { id: "am", label: "早课", start: "05:00", end: "06:30" },
+  { id: "pm", label: "晚课", start: "19:30", end: "22:00" },
+];
+const ABACUS = "https://abacus.jasoncameron.dev";
+const ABACUS_NS = "jjq-toolbox-shouyueliang";
+const counterEl = document.getElementById("visit-count");
+
+function countWindowAt(now) {
+  const m = now.getHours() * 60 + now.getMinutes();
+  for (const w of COUNT_WINDOWS) {
+    const [sh, sm] = w.start.split(":").map(Number);
+    const [eh, em] = w.end.split(":").map(Number);
+    if (m >= sh * 60 + sm && m < eh * 60 + em) return w;
+  }
+  return null;
+}
+function counterKey(w, day) { return `${dayKey(day)}-${w.id}`; }
+
+let lastCountTick = 0;
+function counterTick() {
+  /* 进入时段且本设备未计数 → +1 */
+  const w = countWindowAt(new Date());
+  if (w) {
+    const flag = "jjq_counted_" + counterKey(w, new Date());
+    let counted = false;
+    try { counted = localStorage.getItem(flag) === "1"; } catch { /* 忽略 */ }
+    if (!counted) {
+      try { localStorage.setItem(flag, "1"); } catch { /* 忽略 */ }
+      fetch(`${ABACUS}/hit/${ABACUS_NS}/${counterKey(w, new Date())}`).catch(() => {}).finally(refreshCounts);
+    }
+  }
+  /* 每 60 秒刷新显示 */
+  const nowMs = Date.now();
+  if (nowMs - lastCountTick > 60000) {
+    lastCountTick = nowMs;
+    refreshCounts();
+  }
+}
+
+async function refreshCounts() {
+  if (!counterEl) return;
+  const day = new Date();
+  const live = countWindowAt(day);
+  const reads = await Promise.all(COUNT_WINDOWS.map(async (w) => {
+    try {
+      const r = await fetch(`${ABACUS}/get/${ABACUS_NS}/${counterKey(w, day)}`, { cache: "no-store" });
+      const j = await r.json();
+      return { w, n: j.value || 0 };
+    } catch { return { w, n: null }; }
+  }));
+  counterEl.hidden = false;
+  counterEl.textContent = "";
+  const lead = document.createElement("span");
+  lead.textContent = "今日到访：";
+  counterEl.appendChild(lead);
+  reads.forEach(({ w, n }, i) => {
+    if (i) counterEl.appendChild(document.createTextNode(" · "));
+    const isLive = live && live.id === w.id;
+    if (isLive) {
+      const dot = document.createElement("span");
+      dot.className = "live-dot";
+      counterEl.appendChild(dot);
+    }
+    const span = document.createElement("span");
+    span.textContent = `${w.label} ${n === null ? "—" : n} 人`;
+    if (isLive) span.className = "live-num";
+    counterEl.appendChild(span);
+  });
+}
+counterTick();
 
 /* ---------- Toast ---------- */
 function showToast(message, type = "info", duration = 2600) {
