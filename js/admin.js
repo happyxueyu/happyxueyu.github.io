@@ -28,6 +28,7 @@ const saveStatus = document.getElementById("save-status");
 let token = "";
 let tokenOK = false;
 let editing = [];
+let rawById = {}; /* 保留配置中的原始字段（partDurations/durationSec/audio/scenes 等） */
 
 /* ---------- GitHub API ---------- */
 async function api(path, opts = {}) {
@@ -96,6 +97,8 @@ async function loadConfig() {
     if (!r.ok) throw new Error("HTTP " + r.status);
     const cfg = await r.json();
     graceInput.value = cfg.graceMin || 15;
+    rawById = {};
+    (cfg.schedule || []).forEach((s) => { rawById[s.id] = s; });
     editing = (cfg.schedule || []).map((s, i) => ({
       id: s.id || ("s" + Date.now() + "_" + i),
       name: s.name || "",
@@ -157,13 +160,21 @@ btnAdd.addEventListener("click", () => {
 btnSave.addEventListener("click", async () => {
   if (!tokenOK) { showToast("凭证不可用，请先绑定", "error"); return; }
   const schedule = editing
-    .filter((s) => s.videos.trim())
-    .map((s) => ({
-      id: s.id,
-      name: s.name.trim() || "未命名场次",
-      time: /^\d{1,2}:\d{2}$/.test(s.time) ? s.time : "08:00",
-      videos: s.videos.split(/\n+/).map((v) => v.trim()).filter(Boolean),
-    }));
+    .filter((s) => s.videos.trim() || (rawById[s.id] && rawById[s.id].audio))
+    .map((s) => {
+      /* 先带上原始配置中的附加字段（partDurations/durationSec/audio/scenes），再覆盖表单字段 */
+      const extra = rawById[s.id] ? { ...rawById[s.id] } : {};
+      delete extra.name; delete extra.time; delete extra.videos;
+      const out = {
+        ...extra,
+        id: s.id,
+        name: s.name.trim() || "未命名场次",
+        time: /^\d{1,2}:\d{2}$/.test(s.time) ? s.time : "08:00",
+      };
+      const vids = s.videos.split(/\n+/).map((v) => v.trim()).filter(Boolean);
+      if (vids.length) out.videos = vids;
+      return out;
+    });
   if (!schedule.length) { showToast("至少要有一场，且填了视频地址", "error"); return; }
   schedule.sort((a, b) => a.time.localeCompare(b.time));
 

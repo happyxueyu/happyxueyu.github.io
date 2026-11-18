@@ -5,13 +5,17 @@
       "id": "am",
       "name": "早课 · 视频1",
       "time": "05:30",
-      "videos": ["test-media/am-1.mp4", "test-media/am-2.mp4"]
+      "videos": ["test-media/am-1.mp4", "test-media/am-2.mp4"],
+      "partDurations": [1883.36, 1854.8],
+      "durationSec": 3738.13
     },
     {
       "id": "pm",
       "name": "晚课 · 视频2",
       "time": "20:00",
-      "videos": ["test-media/pm-1.mp4", "test-media/pm-2.mp4", "test-media/pm-3.mp4"]
+      "videos": ["test-media/pm-1.mp4", "test-media/pm-2.mp4", "test-media/pm-3.mp4"],
+      "partDurations": [2450.05, 2475.0, 2427.8],
+      "durationSec": 7352.85
     }
   ]
 }
