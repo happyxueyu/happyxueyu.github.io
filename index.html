@@ -43,18 +43,7 @@
 
     <div class="sound-hint">🔊 声音提示：若到点播放时没有声音，<strong>点击画面任意位置</strong>即可开启（部分设备首次访问需点一下，之后浏览器会记住，自动有声播放）</div>
 
-    <div class="slots">
-      <div class="slot" id="slot-am">
-        <span class="slot-time">05:30</span>
-        <span class="slot-name">早课 · 视频1</span>
-        <span class="slot-state">待播放</span>
-      </div>
-      <div class="slot" id="slot-pm">
-        <span class="slot-time">20:00</span>
-        <span class="slot-name">晚课 · 视频2</span>
-        <span class="slot-state">待播放</span>
-      </div>
-    </div>
+    <div class="slots" id="slots"><!-- 由 js/app.js 按 config.json 动态渲染 --></div>
 
     <div id="countdown">—</div>
     <div class="hint muted" id="wake-hint"></div>

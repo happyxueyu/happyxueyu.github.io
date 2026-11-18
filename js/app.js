@@ -1,20 +1,20 @@
 /* ==========================================================
    精进群工具箱测试 — 定时视频播放（无操作、全自动）
    ------------------------------------------------------------
-   修改播放计划：直接编辑下方 SCHEDULE（时间用 24 小时制）
-   video 可以是站内文件路径或 https 链接
+   播放计划优先读取线上 config.json（可在 admin.html 后台修改），
+   读取失败时使用下方内置默认值。
    ========================================================== */
 "use strict";
 
-/* ---------- 播放计划（可按需修改） ----------
-   videos 是按顺序连续播放的分段列表（分段用于控制单文件体积），
-   全部播完视为本场结束 */
-const SCHEDULE = [
+/* ---------- 内置默认计划（config.json 不可用时的兜底） ---------- */
+const DEFAULT_SCHEDULE = [
   { id: "am", name: "早课 · 视频1", time: "05:30", videos: ["test-media/am-1.mp4", "test-media/am-2.mp4"] },
   { id: "pm", name: "晚课 · 视频2", time: "20:00", videos: ["test-media/pm-1.mp4", "test-media/pm-2.mp4", "test-media/pm-3.mp4"] },
 ];
-/* 开播后的宽限期（分钟）：在此时长内打开页面也会补播 */
-const GRACE_MIN = 15;
+const DEFAULT_GRACE_MIN = 15;
+
+let SCHEDULE = DEFAULT_SCHEDULE;
+let GRACE_MIN = DEFAULT_GRACE_MIN;
 
 /* ---------- 元素 ---------- */
 const video = document.getElementById("video");
@@ -27,6 +27,7 @@ const sbLabel = document.getElementById("sb-label");
 const sbName = document.getElementById("sb-name");
 const sbTime = document.getElementById("sb-time");
 const sbCountdown = document.getElementById("sb-countdown");
+const slotsEl = document.getElementById("slots");
 const unmuteBtn = document.getElementById("unmute-btn");
 const wakeHint = document.getElementById("wake-hint");
 const vbPlay = document.getElementById("vb-play");
@@ -151,8 +152,6 @@ document.addEventListener("click", async () => {
     unmuteBtn.hidden = true;
     return;
   }
-  /* 待机时点一下页面：借这次手势在同一元素上播放并暂停，
-     让浏览器记住本站允许自动播放（之后到点即可有声播放） */
   if (!playing && !primed && video.src) {
     primed = true;
     try {
@@ -178,19 +177,38 @@ async function requestWakeLock() {
     wakeHint.textContent = "屏幕常亮开启失败，建议手动设置设备不休眠";
   }
 }
-requestWakeLock();
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "visible" && !wakeLock) requestWakeLock();
 });
 
-/* ---------- 界面刷新 ---------- */
-function setSlotState(slot, text) {
-  const el = document.getElementById(`slot-${slot.id}`);
-  if (el) el.querySelector(".slot-state").textContent = text;
+/* ---------- 场次列表（按配置动态渲染） ---------- */
+function renderSlots() {
+  slotsEl.innerHTML = "";
+  for (const slot of SCHEDULE) {
+    const row = document.createElement("div");
+    row.className = "slot";
+    row.dataset.id = slot.id;
+    const time = document.createElement("span");
+    time.className = "slot-time";
+    time.textContent = slot.time;
+    const name = document.createElement("span");
+    name.className = "slot-name";
+    name.textContent = slot.name;
+    const state = document.createElement("span");
+    state.className = "slot-state";
+    state.textContent = "待播放";
+    row.append(time, name, state);
+    slotsEl.appendChild(row);
+  }
 }
 
+function setSlotState(slot, text) {
+  const row = slotsEl.querySelector(`.slot[data-id="${slot.id}"]`);
+  if (row) row.querySelector(".slot-state").textContent = text;
+}
+
+/* ---------- 界面刷新 ---------- */
 function nextSlotInfo() {
-  /* 返回 { slot, date }：今天下一个未播场次；都播完则取明天第一场 */
   const now = new Date();
   const t = now.getTime();
   let best = null;
@@ -224,7 +242,7 @@ function updateUI() {
   }
 
   const next = nextSlotInfo();
-  const isTomorrow = next.date !== now && next.date.toDateString() !== now.toDateString();
+  const isTomorrow = next.date.toDateString() !== now.toDateString();
   const ms = slotDate(next.slot, next.date).getTime() - t;
   countdownEl.textContent = (isTomorrow ? `明天 ${next.slot.time} ` : `下一场 ${next.slot.time} `)
     + `${next.slot.name}，还有 ${formatSpan(ms)}`;
@@ -256,8 +274,25 @@ function tick() {
   if (!playing) checkSchedule();
   updateUI();
 }
-tick();
-setInterval(tick, 1000);
+
+/* ---------- 启动：先读线上配置，失败用默认 ---------- */
+function initApp() {
+  renderSlots();
+  requestWakeLock();
+  tick();
+  setInterval(tick, 1000);
+}
+
+fetch(new Request("config.json", { cache: "no-store" }))
+  .then((r) => (r.ok ? r.json() : Promise.reject(new Error("http " + r.status))))
+  .then((cfg) => {
+    if (cfg && Array.isArray(cfg.schedule) && cfg.schedule.length) {
+      SCHEDULE = cfg.schedule;
+      GRACE_MIN = typeof cfg.graceMin === "number" && cfg.graceMin > 0 ? cfg.graceMin : DEFAULT_GRACE_MIN;
+    }
+  })
+  .catch(() => { /* 离线或配置缺失：使用内置默认 */ })
+  .finally(initApp);
 
 /* ---------- Toast ---------- */
 function showToast(message, type = "info", duration = 2600) {

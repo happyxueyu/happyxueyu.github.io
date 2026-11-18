@@ -297,3 +297,88 @@ a:hover { text-decoration: underline; }
 .toast.hide { animation: toast-out 0.25s ease forwards; }
 @keyframes toast-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
 @keyframes toast-out { to { opacity: 0; transform: translateY(10px); } }
+
+/* ==========================================================
+   后台管理页
+   ========================================================== */
+.admin-body { overflow-y: auto; }
+.admin-page { max-width: 720px; margin: 0 auto; padding: 26px 16px 60px; }
+.admin-page h1 { font-size: 22px; margin-bottom: 4px; }
+.admin-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+  margin-top: 16px;
+}
+.admin-card h2 { font-size: 16px; margin-bottom: 12px; }
+.admin-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+.token-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.token-row input {
+  flex: 1;
+  min-width: 240px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 14px;
+  padding: 10px 12px;
+  outline: none;
+}
+.token-row input:focus { border-color: var(--accent); }
+#token-status { margin-top: 8px; }
+.ok-text { color: var(--ok); }
+.err-text { color: var(--danger); }
+.token-help { margin-top: 10px; }
+.token-help ol { padding-left: 20px; margin-top: 6px; }
+.token-help code { background: rgba(255, 255, 255, 0.08); padding: 1px 5px; border-radius: 4px; }
+
+.grace-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  font-size: 14px;
+}
+.grace-row input {
+  width: 80px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  color: var(--text);
+  font-family: var(--font);
+  padding: 7px 10px;
+  outline: none;
+}
+
+.session-row {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
+  background: rgba(0, 0, 0, 0.15);
+}
+.session-head { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+.session-head input[type="time"] { width: 110px; }
+.session-head input[type="text"] { flex: 1; min-width: 160px; }
+.session-head input, .session-row textarea {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 14px;
+  padding: 8px 10px;
+  outline: none;
+}
+.session-head input:focus, .session-row textarea:focus { border-color: var(--accent); }
+.session-row textarea { width: 100%; resize: vertical; font-family: Consolas, monospace; font-size: 13px; }
+
+.btn-danger {
+  border: 1px solid rgba(255, 107, 129, 0.4);
+  color: var(--danger);
+  padding: 7px 14px;
+}
+.btn-danger:hover { background: rgba(255, 107, 129, 0.15); border-color: var(--danger); }
