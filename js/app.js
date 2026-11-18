@@ -69,9 +69,9 @@ function checkSchedule() {
   }
 }
 
-async function startPlay(slot) {
+async function startPlay(slot, opts = {}) {
   playing = true;
-  markPlayed(slot);
+  if (!opts.test) markPlayed(slot); /* 测试播放不占用当天场次 */
   setSlotState(slot, "播放中");
   playerState.classList.add("playing");
   playerWrap.classList.add("playing");
@@ -281,6 +281,17 @@ function initApp() {
   requestWakeLock();
   tick();
   setInterval(tick, 1000);
+  /* 测试播放：网址加 ?play=am 或 ?play=pm 立即播放对应场次（不影响当天正式场次） */
+  const want = new URLSearchParams(location.search).get("play");
+  if (want) {
+    const slot = SCHEDULE.find((s) => s.id === want);
+    if (slot) {
+      showToast(`测试播放：${slot.name}`, "info", 2000);
+      startPlay(slot, { test: true });
+    } else {
+      showToast(`没有找到场次 "${want}"（可用：${SCHEDULE.map((s) => s.id).join(" / ")}）`, "error", 4000);
+    }
+  }
 }
 
 fetch(new Request("config.json", { cache: "no-store" }))
