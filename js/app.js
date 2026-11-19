@@ -281,15 +281,30 @@ async function startPlay(slot, opts = {}) {
   }
 }
 
-async function tryPlay(el, seek, seekFn) {
+const startBtn = document.getElementById("start-btn");
+async function tryPlay(el) {
   try {
     await el.play();
-  } catch {
-    /* 浏览器拦截有声自动播放 → 静音播 + 开声音按钮 */
+    return;
+  } catch { /* 尝试静音自动播放 */ }
+  try {
     el.muted = true;
-    try { await el.play(); } catch { showToast("无法自动播放，请刷新页面重试", "error", 5000); }
-  }
+    await el.play();
+    return;
+  } catch { /* 静音也被禁止（微信/省流模式等） */ }
+  /* 兜底：显示大按钮，一点即播 */
+  setBuffering(false);
+  startBtn.hidden = false;
 }
+startBtn.addEventListener("click", async () => {
+  startBtn.hidden = true;
+  try {
+    await media.play();
+  } catch {
+    media.muted = true;
+    media.play().catch(() => {});
+  }
+});
 
 async function playCurrentPart(startAt = 0) {
   playerState.textContent = queue.length > 1 ? `播放中 ${queueIndex + 1}/${queue.length}` : "播放中";
@@ -334,6 +349,7 @@ function onMediaEvent(el) {
   el.addEventListener("pause", () => { if (media === el) updateVbarIcon(false); });
   el.addEventListener("timeupdate", () => {
     if (media !== el || !isFinite(el.duration) || !el.duration) return;
+    setBuffering(false); /* 保险丝：播放真正走动时必定隐藏加载提示 */
     vbFill.style.width = `${(el.currentTime / el.duration) * 100}%`;
     vbTime.textContent = `${fmtShort(el.currentTime)} / ${fmtShort(el.duration)}`;
     if (currentSlot && currentSlot.audio && media === el) {
@@ -364,7 +380,7 @@ function onMediaEvent(el) {
   el.addEventListener("volumechange", () => { if (media === el) updateMuteBadge(); });
   el.addEventListener("waiting", () => { if (media === el) setBuffering(true); });
   el.addEventListener("stalled", () => { if (media === el) setBuffering(true); });
-  el.addEventListener("playing", () => { if (media === el) setBuffering(false); });
+  el.addEventListener("playing", () => { if (media === el) { setBuffering(false); startBtn.hidden = true; } });
   el.addEventListener("canplay", () => { if (media === el) setBuffering(false); });
 }
 onMediaEvent(video);
@@ -380,6 +396,7 @@ function finishSession() {
   try { media.currentTime = 0; } catch { /* 忽略 */ }
   media.muted = false;
   unmuteBtn.hidden = true;
+  startBtn.hidden = true;
   playerWrap.classList.remove("playing", "audio-mode");
   stripA.classList.remove("show");
   stripB.classList.remove("show");
@@ -437,12 +454,18 @@ function updateMuteBadge() {
 }
 unmuteBtn.addEventListener("click", () => { media.muted = false; });
 
-/* ---------- 微信内就绪后补一次播放（微信限制自动播放的特殊处理） ---------- */
-document.addEventListener("WeixinJSBridgeReady", () => {
-  if (playing && media && media.paused && media.src) {
-    media.play().catch(() => {});
-  }
-}, false);
+/* ---------- 微信内就绪后补一次播放（兼容已就绪/未就绪两种时序） ---------- */
+function wxReady(cb) {
+  if (window.WeixinJSBridge) { cb(); return; }
+  document.addEventListener("WeixinJSBridgeReady", cb, false);
+}
+wxReady(() => {
+  setTimeout(() => {
+    if (playing && media && media.paused && media.src) {
+      media.play().catch(() => {});
+    }
+  }, 50);
+});
 
 /* ---------- 点击页面任意位置：开声音 / 预授权 ---------- */
 let primed = false;

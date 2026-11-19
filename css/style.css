@@ -360,6 +360,38 @@ a:hover { text-decoration: underline; }
   pointer-events: none;
 }
 .dot-flask { display: inline-flex; gap: 7px; font-size: 20px; }
+
+/* ---------- 兜底启动按钮（自动播放被完全禁止时） ---------- */
+#start-btn {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  display: grid;
+  place-items: center;
+  margin: auto;
+  width: auto;
+  height: auto;
+  font-family: var(--font);
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.55);
+  border: none;
+  cursor: pointer;
+  backdrop-filter: blur(3px);
+}
+#start-btn::before {
+  content: "";
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  background: radial-gradient(circle, rgba(124, 108, 255, 0.55), rgba(34, 211, 238, 0.35));
+  box-shadow: 0 0 34px rgba(124, 108, 255, 0.65);
+  margin-bottom: 14px;
+}
+#start-btn { grid-template-rows: auto auto; align-content: center; gap: 14px; }
+#start-btn:hover { background: rgba(0, 0, 0, 0.7); }
 .dot-flask span { animation: dot-bounce 1.2s infinite; }
 .dot-flask span:nth-child(2) { animation-delay: 0.15s; }
 .dot-flask span:nth-child(3) { animation-delay: 0.3s; }
