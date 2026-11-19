@@ -287,7 +287,10 @@ async function startPlay(slot, opts = {}) {
     /* —— 视频模式（分段连播 + 精准同步进场） —— */
     playerWrap.classList.remove("audio-mode");
     media = video;
+    standbyEl = video2;
+    setFrontEl(video);
     audioEl.pause();
+    video2.pause();
     queue = slot.videos.slice();
     let partIdx = 0;
     let offset = opts.seek || 0;
@@ -337,14 +340,46 @@ startBtn.addEventListener("click", async () => {
   }
 });
 
+/* ---------- 双播放器无缝接力 ---------- */
+const video2 = document.getElementById("video2");
+let standbyEl = video2; /* 预载下段的后台播放器 */
+
+function setFrontEl(el) {
+  const other = el === video ? video2 : video;
+  el.classList.add("v-front"); el.classList.remove("v-back");
+  other.classList.add("v-back"); other.classList.remove("v-front");
+}
+/* 后台预载下一段（音量/静音状态与前台同步） */
+function loadStandbyNext() {
+  if (!standbyEl || playing === false || !queue.length) return;
+  const next = queue[queueIndex + 1];
+  if (!next) return;
+  const url = new URL(next, location.href).href;
+  if (standbyEl.src !== url) {
+    standbyEl.muted = media.muted;
+    standbyEl.volume = media.volume;
+    standbyEl.src = next; /* preload=auto，自动加载首帧待命 */
+  }
+}
+/* 无缝换轨：切到预载好的后台播放器继续播 */
+async function swapToStandby() {
+  const old = media;
+  media = standbyEl;
+  standbyEl = old;
+  old.pause();
+  media.muted = old.muted;
+  media.volume = old.volume;
+  setFrontEl(media);
+}
+
 async function playCurrentPart(startAt = 0) {
   playerState.textContent = queue.length > 1 ? `播放中 ${queueIndex + 1}/${queue.length}` : "播放中";
-  video.src = queue[queueIndex];
-
+  const url = new URL(queue[queueIndex], location.href).href;
+  if (media.src !== url) media.src = queue[queueIndex]; /* 已预载则不重载 */
   if (startAt > 0) {
-    video.addEventListener("loadedmetadata", () => { video.currentTime = startAt; }, { once: true });
+    media.addEventListener("loadedmetadata", () => { media.currentTime = startAt; }, { once: true });
   }
-  await tryPlay(video);
+  await tryPlay(media);
 }
 
 /* ---------- 直播同步校准（防缓冲造成的漂移；视频模式可跨段校正） ---------- */
@@ -368,7 +403,7 @@ setInterval(() => {
     if (idx >= queue.length) { finishSession(); return; } /* 直播时刻已过本场结尾 */
     if (idx !== queueIndex) {
       queueIndex = idx;
-      playCurrentPart(offset);
+      swapToStandby().then(() => { playCurrentPart(offset); loadStandbyNext(); });
     } else if (isFinite(video.duration) && Math.abs(video.currentTime - offset) > 15) {
       video.currentTime = offset;
     }
@@ -421,7 +456,11 @@ function onMediaEvent(el) {
     if (media !== el || !playing) return;
     if (!currentSlot.audio && queueIndex < queue.length - 1) {
       queueIndex += 1;
-      playCurrentPart();
+      /* 无缝接力：后台播放器已预载下段首帧，立即接管，零间隙 */
+      swapToStandby().then(() => {
+        playCurrentPart();
+        loadStandbyNext(); /* 退到后台的播放器预载下下段 */
+      });
       return;
     }
     finishSession();
@@ -449,10 +488,12 @@ function onMediaEvent(el) {
     setBuffering(false);
     startBtn.hidden = true;
     playerWrap.classList.remove("preload-visual"); /* 正式开场：字幕/光芒/推镜一起启动 */
+    if (!currentSlot || !currentSlot.audio) loadStandbyNext(); /* 开播即让后台预载下段 */
   });
   el.addEventListener("canplay", () => { if (media === el) setBuffering(false); });
 }
 onMediaEvent(video);
+onMediaEvent(video2);
 onMediaEvent(audioEl);
 
 function finishSession() {
@@ -462,6 +503,7 @@ function finishSession() {
   currentSlot = null;
   currentSceneKey = "";
   media.pause();
+  video2.pause();
   try { media.currentTime = 0; } catch { /* 忽略 */ }
   media.muted = false;
   unmuteBtn.hidden = true;
@@ -485,6 +527,7 @@ function finishSession() {
 
 /* 禁止手动控制入口 */
 video.addEventListener("contextmenu", (e) => e.preventDefault());
+video2.addEventListener("contextmenu", (e) => e.preventDefault());
 
 /* ---------- 播放器外观栏 ---------- */
 function fmtShort(s) {
@@ -522,6 +565,8 @@ function updateMuteBadge() {
   }
 }
 unmuteBtn.addEventListener("click", () => { media.muted = false; });
+video.addEventListener("volumechange", () => { if (standbyEl && media === video) { standbyEl.muted = video.muted; standbyEl.volume = video.volume; } });
+video2.addEventListener("volumechange", () => { if (standbyEl && media === video2) { standbyEl.muted = video2.muted; standbyEl.volume = video2.volume; } });
 
 /* ---------- 微信内就绪后补一次播放（兼容已就绪/未就绪两种时序） ---------- */
 function wxReady(cb) {

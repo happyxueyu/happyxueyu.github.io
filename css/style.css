@@ -81,13 +81,19 @@ a:hover { text-decoration: underline; }
   box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
 }
 
-#video {
+/* 双播放器：前台播放/后台预载，切换零间隙不闪黑 */
+#video, #video2 {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: contain;
-  display: block;
+  background: transparent;
   pointer-events: none; /* 不允许任何手动控制 */
 }
+#video2 { opacity: 0; }
+.v-front { opacity: 1 !important; }
+.v-back { opacity: 0 !important; }
 
 /* ---------- 播放器待机层（纯色底 + 动态文字） ---------- */
 #player-standby {
@@ -227,7 +233,7 @@ a:hover { text-decoration: underline; }
 }
 
 /* 音频模式下视频元素仅作声音载体：透明但保持渲染（iOS 对 display:none 的视频可能暂停） */
-#player-wrap.audio-mode #video { opacity: 0; pointer-events: none; }
+#player-wrap.audio-mode #video, #player-wrap.audio-mode #video2 { opacity: 0; pointer-events: none; }
 #player-wrap:not(.audio-mode) #bg-scene,
 #player-wrap:not(.audio-mode) #strip-a,
 #player-wrap:not(.audio-mode) #strip-b,
@@ -477,7 +483,7 @@ body.fs-fake #player-wrap {
 }
 /* 竖屏持机时把画面旋转成横屏 */
 @media (orientation: portrait) {
-  body.fs-fake #video {
+  body.fs-fake #video, body.fs-fake #video2 {
     position: absolute;
     top: 50%;
     left: 50%;
