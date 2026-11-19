@@ -350,6 +350,14 @@ a:hover { text-decoration: underline; }
   50% { box-shadow: 0 0 0 10px rgba(255, 107, 129, 0); }
 }
 
+/* ---------- 加载待启状态：静止背景 + 文字，就绪后整套动画开场 ---------- */
+#player-wrap.preload-visual #glow,
+#player-wrap.preload-visual #strip-a,
+#player-wrap.preload-visual #strip-b,
+#player-wrap.preload-visual #vbar { display: none; }
+#player-wrap.preload-visual #bg-scene,
+#player-wrap.preload-visual #bg-b { animation: none; }
+
 /* ---------- 缓冲提示 ---------- */
 #buffering {
   position: absolute;

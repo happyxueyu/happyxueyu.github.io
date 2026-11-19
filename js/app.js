@@ -235,6 +235,7 @@ async function startPlay(slot, opts = {}) {
        禁止 audio 自动播放，但允许"静音视频"自动播放——视频元素
        在此处仅作为声音载体（CSS 已隐藏），画面由图片层呈现 */
     playerWrap.classList.add("audio-mode");
+    playerWrap.classList.add("preload-visual"); /* 加载期静止背景，播放开始后整套动画登场 */
     bgSc.hidden = false;
     bgB.hidden = false;
     stripA.hidden = false;
@@ -402,7 +403,12 @@ function onMediaEvent(el) {
     } catch { /* 忽略 */ }
   });
   el.addEventListener("stalled", () => { if (media === el) setBuffering(true); });
-  el.addEventListener("playing", () => { if (media === el) { setBuffering(false); startBtn.hidden = true; } });
+  el.addEventListener("playing", () => {
+    if (media !== el) return;
+    setBuffering(false);
+    startBtn.hidden = true;
+    playerWrap.classList.remove("preload-visual"); /* 正式开场：字幕/光芒/推镜一起启动 */
+  });
   el.addEventListener("canplay", () => { if (media === el) setBuffering(false); });
 }
 onMediaEvent(video);
@@ -419,7 +425,7 @@ function finishSession() {
   media.muted = false;
   unmuteBtn.hidden = true;
   startBtn.hidden = true;
-  playerWrap.classList.remove("playing", "audio-mode");
+  playerWrap.classList.remove("playing", "audio-mode", "preload-visual");
   stripA.classList.remove("show");
   stripB.classList.remove("show");
   bgSc.classList.remove("show");
