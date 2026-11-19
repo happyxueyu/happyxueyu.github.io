@@ -353,7 +353,7 @@ setInterval(() => {
   const target = (Date.now() - sessionStartMs) / 1000;
   if (!currentSlot) return;
   if (currentSlot.audio) {
-    if (isFinite(media.duration) && target < media.duration && Math.abs(media.currentTime - target) > 2.5) {
+    if (isFinite(media.duration) && target < media.duration && Math.abs(media.currentTime - target) > 15) {
       media.currentTime = target;
     }
   } else if (currentSlot.partDurations && queue.length) {
@@ -369,7 +369,7 @@ setInterval(() => {
     if (idx !== queueIndex) {
       queueIndex = idx;
       playCurrentPart(offset);
-    } else if (isFinite(video.duration) && Math.abs(video.currentTime - offset) > 2.5) {
+    } else if (isFinite(video.duration) && Math.abs(video.currentTime - offset) > 15) {
       video.currentTime = offset;
     }
   }
@@ -401,7 +401,8 @@ function onMediaEvent(el) {
           }
         }
       } catch { /* 忽略 */ }
-      if ((ahead > 30 || el.currentTime > el.duration - 15) && !partsPrefetched.has(queue[queueIndex + 1])) {
+      const fullyBuffered = ahead >= el.duration - el.currentTime - 2;
+      if ((fullyBuffered || el.currentTime > el.duration - 20) && !partsPrefetched.has(queue[queueIndex + 1])) {
         partsPrefetched.add(queue[queueIndex + 1]);
         fetch(queue[queueIndex + 1]).catch(() => partsPrefetched.delete(queue[queueIndex + 1]));
       }
