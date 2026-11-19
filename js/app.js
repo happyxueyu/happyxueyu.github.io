@@ -14,17 +14,15 @@
 const DEFAULT_SCHEDULE = [
   {
     id: "am", name: "早课 · 视频1", time: "05:30",
-    audio: "test-media/am-av.mp4",
+    videos: ["test-media/vparts/am-01.mp4"],
+    partDurations: [30],
     durationSec: 3738.13,
-    bgs: [{ t: 0, img: "test-media/seg/seg-am-main.jpg" }],
-    scenes: [{ t: 0, strip: "test-media/strips/am-00000.png" }],
   },
   {
     id: "pm", name: "晚课 · 视频2", time: "20:00",
-    audio: "test-media/pm-av.mp4",
-    durationSec: 7352.85,
-    bgs: [{ t: 0, img: "test-media/seg/seg-pm-main.jpg" }],
-    scenes: [{ t: 0, strip: "test-media/strips/pm-00000.png" }],
+    videos: ["test-media/vparts/pm-01.mp4"],
+    partDurations: [30],
+    durationSec: 7352.8,
   },
 ];
 const DEFAULT_GRACE_MIN = 15; /* 兜底：无时长信息时的最短进场窗口 */
@@ -244,21 +242,42 @@ async function startPlay(slot, opts = {}) {
     media = video;
     audioEl.pause();
     audioEl.removeAttribute("src");
-    video.src = slot.audio;
+    /* 渐进分段：首段短（秒开），播放中后台预取后续段 */
+    mediaParts = (slot.mediaParts && slot.mediaParts.length) ? slot.mediaParts.slice() : [slot.audio];
+    partIdx = 0;
+    partBase = [0];
+    if (slot.partDurations) {
+      for (let i = 0; i < slot.partDurations.length; i++) {
+        partBase.push(partBase[i] + slot.partDurations[i]);
+      }
+    }
+    let joinIdx = 0;
+    let joinOff = opts.seek || 0;
+    if (slot.partDurations) {
+      for (let i = 0; i < slot.partDurations.length; i++) {
+        if (joinOff < partBase[i + 1]) { joinIdx = i; joinOff -= partBase[i]; break; }
+        joinIdx = i + 1;
+        joinOff = 0;
+      }
+      if (joinIdx >= mediaParts.length) { finishSession(); return; }
+    }
+    partIdx = joinIdx;
+    video.src = mediaParts[partIdx];
     video.muted = false;
     playerState.textContent = "播放中";
     currentSceneKey = "";
     currentBgKey = "";
     preloadScenes(slot);
     const seekTo = () => {
-      if (opts.seek > 0 && isFinite(video.duration)) {
-        video.currentTime = Math.min(opts.seek, Math.max(0, video.duration - 1));
+      if (joinOff > 0 && isFinite(video.duration)) {
+        video.currentTime = Math.min(joinOff, Math.max(0, video.duration - 0.5));
       }
       video.removeEventListener("loadedmetadata", seekTo);
     };
     video.addEventListener("loadedmetadata", seekTo);
-    syncBgToTime(opts.seek || 0);
-    syncSceneToTime(opts.seek || 0);
+    const cum0 = partBase[partIdx] + joinOff;
+    syncBgToTime(cum0);
+    syncSceneToTime(cum0);
     await tryPlay(video);
   } else {
     /* —— 视频模式（分段连播 + 精准同步进场） —— */
@@ -317,6 +336,14 @@ startBtn.addEventListener("click", async () => {
 async function playCurrentPart(startAt = 0) {
   playerState.textContent = queue.length > 1 ? `播放中 ${queueIndex + 1}/${queue.length}` : "播放中";
   video.src = queue[queueIndex];
+  /* 渐进加载：开段立即预取下一段（首段仅30秒，不能等60%） */
+  if (queueIndex + 1 < queue.length) {
+    const nextUrl = new URL(queue[queueIndex + 1], location.href).href;
+    if (!partsPrefetched.has(nextUrl)) {
+      partsPrefetched.add(nextUrl);
+      fetch(nextUrl).catch(() => partsPrefetched.delete(nextUrl));
+    }
+  }
   if (startAt > 0) {
     video.addEventListener("loadedmetadata", () => { video.currentTime = startAt; }, { once: true });
   }
@@ -367,9 +394,9 @@ function onMediaEvent(el) {
     }
     if (playing && media === el && queue.length > 1 && queueIndex < queue.length - 1) {
       const nextUrl = new URL(queue[queueIndex + 1], location.href).href;
-      if (el.currentTime > el.duration * 0.6 && !prefetched.has(nextUrl)) {
-        prefetched.add(nextUrl);
-        fetch(nextUrl).catch(() => prefetched.delete(nextUrl));
+      if (el.currentTime > el.duration * 0.6 && !partsPrefetched.has(nextUrl)) {
+        partsPrefetched.add(nextUrl);
+        fetch(nextUrl).catch(() => partsPrefetched.delete(nextUrl));
       }
     }
   });
