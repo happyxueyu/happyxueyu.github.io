@@ -717,8 +717,47 @@ async function requestWakeLock() {
     wakeHint.textContent = "屏幕常亮开启失败，建议手动设置设备不休眠";
   }
 }
+/* 回前台恢复：直播模式先校准到全群统一时间线（now - 开播时刻），再续播 */
+function resumeAfterBackground() {
+  if (!playing || !currentSlot || !media.src) return;
+  setTimeout(() => {
+    if (!playing || media.paused === false || !media.src) return;
+    if (media.ended && !liveMode) return; /* 测试模式已自然播完不复活 */
+    if (liveMode) {
+      /* 直播同步：跳到所有人一致的时间点，而不是从暂停处继续 */
+      const target = (Date.now() - sessionStartMs) / 1000;
+      if (target >= sessionDurationSec(currentSlot)) { finishSession(); return; }
+      try {
+        media.currentTime = Math.min(target, Math.max(0, (isFinite(media.duration) ? media.duration : target) - 0.5));
+      } catch (e) { /* seek 失败则原位续播 */ }
+    } else if (media.ended) {
+      return;
+    }
+    media.play().catch(() => {
+      /* 自动续播被拒（iOS 未获得手势授权）：静音续播保画面，提示点开声音 */
+      media.muted = true;
+      media.play().then(() => {
+        updateMuteBadge();
+        showToast("已恢复播放（静音），点击画面开声音", "info", 4000);
+      }).catch(() => {
+        startBtn.hidden = false; /* 彻底被禁：给手动按钮 */
+      });
+    });
+    /* 视频模式顺带确认后台预载还在 */
+    if (!currentSlot.audio && queue.length > 1) loadStandbyNext();
+  }, 200);
+}
 document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "visible" && !wakeLock) requestWakeLock();
+  if (document.visibilityState !== "visible") return;
+  if (!wakeLock) requestWakeLock();
+  resumeAfterBackground();
+});
+/* iOS 从 bfcache 恢复页面时也会暂停视频：pageshow 补救一次 */
+window.addEventListener("pageshow", (e) => {
+  if (e.persisted) resumeAfterBackground();
+  else if (playing && media.src && media.paused && !media.ended) {
+    media.play().catch(() => {});
+  }
 });
 
 /* ---------- 场次列表（动态渲染） ---------- */
