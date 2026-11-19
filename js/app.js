@@ -340,14 +340,7 @@ startBtn.addEventListener("click", async () => {
 async function playCurrentPart(startAt = 0) {
   playerState.textContent = queue.length > 1 ? `播放中 ${queueIndex + 1}/${queue.length}` : "播放中";
   video.src = queue[queueIndex];
-  /* 渐进加载：开段立即预取下一段（首段仅30秒，不能等60%） */
-  if (queueIndex + 1 < queue.length) {
-    const nextUrl = new URL(queue[queueIndex + 1], location.href).href;
-    if (!partsPrefetched.has(nextUrl)) {
-      partsPrefetched.add(nextUrl);
-      fetch(nextUrl).catch(() => partsPrefetched.delete(nextUrl));
-    }
-  }
+
   if (startAt > 0) {
     video.addEventListener("loadedmetadata", () => { video.currentTime = startAt; }, { once: true });
   }
@@ -397,10 +390,20 @@ function onMediaEvent(el) {
       prefetchUpcomingScenes(el.currentTime);
     }
     if (playing && media === el && queue.length > 1 && queueIndex < queue.length - 1) {
-      const nextUrl = new URL(queue[queueIndex + 1], location.href).href;
-      if (el.currentTime > el.duration * 0.6 && !partsPrefetched.has(nextUrl)) {
-        partsPrefetched.add(nextUrl);
-        fetch(nextUrl).catch(() => partsPrefetched.delete(nextUrl));
+      /* 礼貌预取：当前段已缓冲30秒以上（或临近段尾）才取下段，避免与播放抢带宽 */
+      let ahead = 0;
+      try {
+        const b = el.buffered;
+        for (let i = 0; i < b.length; i++) {
+          if (b.start(i) <= el.currentTime && el.currentTime < b.end(i)) {
+            ahead = b.end(i) - el.currentTime;
+            break;
+          }
+        }
+      } catch { /* 忽略 */ }
+      if ((ahead > 30 || el.currentTime > el.duration - 15) && !partsPrefetched.has(queue[queueIndex + 1])) {
+        partsPrefetched.add(queue[queueIndex + 1]);
+        fetch(queue[queueIndex + 1]).catch(() => partsPrefetched.delete(queue[queueIndex + 1]));
       }
     }
   });
