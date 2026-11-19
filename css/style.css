@@ -297,6 +297,12 @@ a:hover { text-decoration: underline; }
 
 /* ---------- 到访统计 ---------- */
 #visit-count { color: var(--text); font-variant-numeric: tabular-nums; }
+#visit-count .cnt {
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  padding: 0 1px;
+}
 .live-dot {
   display: inline-block;
   width: 7px;

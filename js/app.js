@@ -743,7 +743,12 @@ async function refreshCounts() {
       counterEl.appendChild(dot);
     }
     const span = document.createElement("span");
-    span.textContent = `${w.label} ${n === null ? "—" : n} 人`;
+    span.textContent = `${w.label} `;
+    const num = document.createElement("b");
+    num.className = "cnt";
+    num.textContent = n === null ? "—" : n;
+    span.appendChild(num);
+    span.appendChild(document.createTextNode(" 人"));
     if (isLive) span.className = "live-num";
     counterEl.appendChild(span);
   });
