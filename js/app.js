@@ -402,9 +402,15 @@ function onMediaEvent(el) {
         }
       } catch { /* 忽略 */ }
       const fullyBuffered = ahead >= el.duration - el.currentTime - 2;
-      if ((fullyBuffered || el.currentTime > el.duration - 20) && !partsPrefetched.has(queue[queueIndex + 1])) {
-        partsPrefetched.add(queue[queueIndex + 1]);
-        fetch(queue[queueIndex + 1]).catch(() => partsPrefetched.delete(queue[queueIndex + 1]));
+      if (fullyBuffered || el.currentTime > el.duration - 20) {
+        /* 小段模式：空闲时连备两段，衔接更稳 */
+        for (let k = 1; k <= 2; k++) {
+          const p = queue[queueIndex + k];
+          if (p && !partsPrefetched.has(p)) {
+            partsPrefetched.add(p);
+            fetch(p).catch(() => partsPrefetched.delete(p));
+          }
+        }
       }
     }
   });
