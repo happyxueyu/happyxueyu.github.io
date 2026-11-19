@@ -746,7 +746,7 @@ async function refreshCounts() {
     span.textContent = `${w.label} `;
     const num = document.createElement("b");
     num.className = "cnt";
-    num.textContent = n === null ? "—" : n;
+    num.textContent = n || 0; /* 无数据/未到访一律显示 0 */
     span.appendChild(num);
     span.appendChild(document.createTextNode(" 人"));
     if (isLive) span.className = "live-num";
