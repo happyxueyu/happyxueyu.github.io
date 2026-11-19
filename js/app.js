@@ -283,18 +283,25 @@ async function startPlay(slot, opts = {}) {
 
 const startBtn = document.getElementById("start-btn");
 async function tryPlay(el) {
-  try {
-    await el.play();
+  let started = false;
+  try { await el.play(); started = true; } catch { /* 尝试静音 */ }
+  if (!started) {
+    try { el.muted = true; await el.play(); started = true; } catch { /* 静音也被禁 */ }
+  }
+  if (!started) {
+    /* 明确被拒：直接给手动按钮 */
+    setBuffering(false);
+    startBtn.hidden = false;
     return;
-  } catch { /* 尝试静音自动播放 */ }
-  try {
-    el.muted = true;
-    await el.play();
-    return;
-  } catch { /* 静音也被禁止（微信/省流模式等） */ }
-  /* 兜底：显示大按钮，一点即播 */
-  setBuffering(false);
-  startBtn.hidden = false;
+  }
+  /* 关键兜底：play 请求可能长时间挂起（不算失败、不走 catch），
+     12 秒后仍未真正开播就给出手动按钮 */
+  setTimeout(() => {
+    if (playing && media === el && el.paused && startBtn.hidden) {
+      startBtn.hidden = false;
+      showToast("缓冲较慢，可点击按钮立即开始", "info", 4000);
+    }
+  }, 12000);
 }
 startBtn.addEventListener("click", async () => {
   startBtn.hidden = true;
@@ -379,6 +386,21 @@ function onMediaEvent(el) {
   });
   el.addEventListener("volumechange", () => { if (media === el) updateMuteBadge(); });
   el.addEventListener("waiting", () => { if (media === el) setBuffering(true); });
+  /* 缓冲进度：显示已缓冲秒数，区分"在加载"与"卡死" */
+  el.addEventListener("progress", () => {
+    if (media !== el || !isFinite(el.duration) || bufferingEl.hidden) return;
+    try {
+      const b = el.buffered;
+      for (let i = 0; i < b.length; i++) {
+        if (b.start(i) <= el.currentTime && el.currentTime < b.end(i)) {
+          const secs = Math.max(0, Math.floor(b.end(i) - el.currentTime));
+          const t = bufferingEl.querySelector(".bf-text");
+          if (t) t.textContent = secs > 0 ? `视频加载中…（已缓冲 ${secs} 秒）` : "视频加载中…";
+          break;
+        }
+      }
+    } catch { /* 忽略 */ }
+  });
   el.addEventListener("stalled", () => { if (media === el) setBuffering(true); });
   el.addEventListener("playing", () => { if (media === el) { setBuffering(false); startBtn.hidden = true; } });
   el.addEventListener("canplay", () => { if (media === el) setBuffering(false); });
