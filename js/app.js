@@ -14,14 +14,14 @@
 const DEFAULT_SCHEDULE = [
   {
     id: "am", name: "早课 · 视频1", time: "05:30",
-    audio: "test-media/am-audio.m4a",
+    audio: "test-media/am-av.mp4",
     durationSec: 3738.13,
     bgs: [{ t: 0, img: "test-media/seg/seg-am-main.jpg" }],
     scenes: [{ t: 0, strip: "test-media/strips/am-00000.png" }],
   },
   {
     id: "pm", name: "晚课 · 视频2", time: "20:00",
-    audio: "test-media/pm-audio.m4a",
+    audio: "test-media/pm-av.mp4",
     durationSec: 7352.85,
     bgs: [{ t: 0, img: "test-media/seg/seg-pm-main.jpg" }],
     scenes: [{ t: 0, strip: "test-media/strips/pm-00000.png" }],
