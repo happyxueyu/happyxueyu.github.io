@@ -372,32 +372,6 @@ function loadStandbyNext() {
     }, { once: true });
   }
 }
-/* ---------- 衔接预滚：新段提前~60ms静音启播，旧段结束仅取消静音，声音零缝 ---------- */
-let prerollOn = false;
-function maybePreroll() {
-  if (prerollOn || (currentSlot && currentSlot.audio)) return;
-  if (!queue.length || queueIndex >= queue.length - 1) return;
-  if (!isFinite(media.duration) || media.currentTime < media.duration - 0.6) return;
-  if (standbyEl.readyState < 3) return; /* 后台未就绪则放弃预滚（走普通换轨） */
-  prerollOn = true;
-  const watch = () => {
-    if (!playing) { prerollOn = false; return; }
-    if (media.paused) { /* 前台突发缓冲：中止预滚 */
-      try { standbyEl.pause(); } catch (e) {}
-      prerollOn = false;
-      return;
-    }
-    if (media.currentTime >= media.duration - 0.06) {
-      try { standbyEl.currentTime = 0; } catch (e) {}
-      standbyEl.volume = media.volume;
-      standbyEl.muted = true; /* 静音预启动，声音零缝的关键 */
-      standbyEl.play().catch(() => {});
-      return;
-    }
-    requestAnimationFrame(watch);
-  };
-  requestAnimationFrame(watch);
-}
 /* 无缝换轨：切到预载好的后台播放器继续播 */
 async function swapToStandby() {
   const old = media;
@@ -439,7 +413,6 @@ setInterval(() => {
     }
     if (idx >= queue.length) { finishSession(); return; } /* 直播时刻已过本场结尾 */
     if (idx !== queueIndex) {
-      if (prerollOn) { try { standbyEl.pause(); } catch (e) {} prerollOn = false; }
       queueIndex = idx;
       swapToStandby().then(() => { playCurrentPart(offset); loadStandbyNext(); });
     } else if (isFinite(video.duration) && Math.abs(video.currentTime - offset) > 15) {
@@ -485,7 +458,6 @@ function onMediaEvent(el) {
           }
         }
       }
-      maybePreroll(); /* 临近段尾时进入预滚监视 */
     }
   });
   el.addEventListener("loadedmetadata", () => {
@@ -500,17 +472,14 @@ function onMediaEvent(el) {
       media = standbyEl;
       standbyEl = old;
       old.pause();
-      media.muted = old.muted; /* 预滚已在播：仅取消静音，声音零缝 */
+      media.muted = old.muted;
       media.volume = old.volume;
       setFrontEl(media);
       playerState.textContent = queue.length > 1 ? `播放中 ${queueIndex + 1}/${queue.length}` : "播放中";
-      if (!prerollOn) {
-        media.play().catch(() => {
-          media.muted = true;
-          media.play().catch(() => {});
-        });
-      }
-      prerollOn = false;
+      media.play().catch(() => {
+        media.muted = true;
+        media.play().catch(() => {});
+      });
       loadStandbyNext();
       return;
     }
@@ -548,7 +517,6 @@ onMediaEvent(video2);
 onMediaEvent(audioEl);
 
 function finishSession() {
-  prerollOn = false;
   if (currentSlot) finishedToday.add(finishKey(currentSlot));
   playing = false;
   liveMode = false;
