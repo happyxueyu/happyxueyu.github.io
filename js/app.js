@@ -359,6 +359,17 @@ function loadStandbyNext() {
     standbyEl.muted = media.muted;
     standbyEl.volume = media.volume;
     standbyEl.src = next; /* preload=auto，自动加载首帧待命 */
+    /* 管道预热：加载完成后静音播一瞬立即暂停，解码器/音频通道进入热备，
+       真正换轨时零冷启动，消除最后几十毫秒顿挫 */
+    standbyEl.addEventListener("canplaythrough", () => {
+      const wasMuted = standbyEl.muted;
+      standbyEl.muted = true;
+      standbyEl.play().then(() => {
+        standbyEl.pause();
+        standbyEl.currentTime = 0;
+        standbyEl.muted = wasMuted;
+      }).catch(() => { standbyEl.muted = wasMuted; });
+    }, { once: true });
   }
 }
 /* 无缝换轨：切到预载好的后台播放器继续播 */
@@ -456,11 +467,20 @@ function onMediaEvent(el) {
     if (media !== el || !playing) return;
     if (!currentSlot.audio && queueIndex < queue.length - 1) {
       queueIndex += 1;
-      /* 无缝接力：后台播放器已预载下段首帧，立即接管，零间隙 */
-      swapToStandby().then(() => {
-        playCurrentPart();
-        loadStandbyNext(); /* 退到后台的播放器预载下下段 */
+      /* 无缝接力：同步换轨（已预载+预热），零间隙零微任务延迟 */
+      const old = media;
+      media = standbyEl;
+      standbyEl = old;
+      old.pause();
+      media.muted = old.muted;
+      media.volume = old.volume;
+      setFrontEl(media);
+      playerState.textContent = queue.length > 1 ? `播放中 ${queueIndex + 1}/${queue.length}` : "播放中";
+      media.play().catch(() => {
+        media.muted = true;
+        media.play().catch(() => {});
       });
+      loadStandbyNext();
       return;
     }
     finishSession();
