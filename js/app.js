@@ -14,14 +14,12 @@
 const DEFAULT_SCHEDULE = [
   {
     id: "am", name: "早课 · 视频1", time: "05:30",
-    videos: ["test-media/vparts/am-01.mp4"],
-    partDurations: [30],
+    videos: ["test-media/am.mp4"],
     durationSec: 3738.13,
   },
   {
     id: "pm", name: "晚课 · 视频2", time: "20:00",
-    videos: ["test-media/vparts/pm-01.mp4"],
-    partDurations: [30],
+    videos: ["test-media/pm.mp4"],
     durationSec: 7352.8,
   },
 ];
@@ -372,6 +370,81 @@ function loadStandbyNext() {
     }, { once: true });
   }
 }
+/* ---------- 衔接预滚 + 首帧交接 ----------
+   新段提前 ~0.4s 静音起播，等它真正"渲染出画面"（requestVideoFrameCallback，
+   不支持则 timeupdate 兜底）那一刻才：暂停旧段 → 换层 → 取消静音。
+   旧段在此之前持续播不冻结 → 画面零黑帧零停顿；交接误差只剩一帧级抖动 */
+let prerollOn = false;
+let prerollWatchTimer = 0;
+function handoverToStandby() {
+  if (!prerollOn) return; /* 防重复交接（ended 冷路径可能已接管） */
+  prerollOn = false;
+  clearInterval(prerollWatchTimer);
+  const old = media;
+  const wasMuted = old.muted;
+  old.pause();
+  media = standbyEl;
+  standbyEl = old;
+  media.volume = old.volume;
+  media.muted = wasMuted;
+  setFrontEl(media);
+  queueIndex += 1;
+  playerState.textContent = queue.length > 1 ? `播放中 ${queueIndex + 1}/${queue.length}` : "播放中";
+  loadStandbyNext();
+}
+function maybePreroll() {
+  if (prerollOn || (currentSlot && currentSlot.audio)) return;
+  if (!queue.length || queueIndex >= queue.length - 1) return;
+  if (!isFinite(media.duration) || media.currentTime < media.duration - 1.5) return;
+  if (standbyEl.readyState < 3) return; /* 后台未就绪则放弃预滚（走普通换轨） */
+  prerollOn = true;
+  const fire = () => {
+    if (!prerollOn) return;
+    try { standbyEl.currentTime = 0; } catch (e) {}
+    standbyEl.volume = media.volume;
+    standbyEl.muted = true; /* 静音预启动，交接瞬间才出声 */
+    standbyEl.play().catch(() => {});
+    let handed = false;
+    const hand = () => {
+      standbyEl.removeEventListener("timeupdate", hand);
+      if (handed || !prerollOn) return;
+      handed = true;
+      handoverToStandby();
+    };
+    /* 首选：新段渲染出第 2 帧画面时交接（第1帧可能还在铺管线，第2帧最稳） */
+    if (standbyEl.requestVideoFrameCallback) {
+      standbyEl.requestVideoFrameCallback(() => standbyEl.requestVideoFrameCallback(hand));
+    }
+    /* 兜底1：不支持 rVFC 的浏览器用 timeupdate */
+    standbyEl.addEventListener("timeupdate", hand);
+    /* 兜底2：1.5s 仍未交接（如后台节流）→ 放弃预滚，交给 ended 冷切换 */
+    setTimeout(() => {
+      if (!handed && prerollOn) {
+        prerollOn = false;
+        standbyEl.removeEventListener("timeupdate", hand);
+        try { standbyEl.pause(); } catch (e) {}
+      }
+    }, 1500);
+  };
+  const step = () => {
+    if (!prerollOn) return;
+    if (!playing || media.paused) { prerollOn = false; try { standbyEl.pause(); } catch (e) {} return; }
+    if (media.currentTime >= media.duration - 0.4) { fire(); return; }
+    requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+  /* rAF 在后台标签/锁屏会被暂停，加 40ms 轮询兜底，谁先到谁触发 */
+  clearInterval(prerollWatchTimer);
+  prerollWatchTimer = setInterval(() => {
+    if (!prerollOn) { clearInterval(prerollWatchTimer); return; }
+    if (!playing || media.paused) {
+      clearInterval(prerollWatchTimer);
+      prerollOn = false; try { standbyEl.pause(); } catch (e) {}
+      return;
+    }
+    if (media.currentTime >= media.duration - 0.4) { clearInterval(prerollWatchTimer); fire(); }
+  }, 40);
+}
 /* 无缝换轨：切到预载好的后台播放器继续播 */
 async function swapToStandby() {
   const old = media;
@@ -413,6 +486,11 @@ setInterval(() => {
     }
     if (idx >= queue.length) { finishSession(); return; } /* 直播时刻已过本场结尾 */
     if (idx !== queueIndex) {
+      if (prerollOn) { /* 跨段校正接管：作废预滚，防其回调二次交接 */
+        prerollOn = false;
+        clearInterval(prerollWatchTimer);
+        try { standbyEl.pause(); } catch (e) {}
+      }
       queueIndex = idx;
       swapToStandby().then(() => { playCurrentPart(offset); loadStandbyNext(); });
     } else if (isFinite(video.duration) && Math.abs(video.currentTime - offset) > 15) {
@@ -458,6 +536,7 @@ function onMediaEvent(el) {
           }
         }
       }
+      maybePreroll(); /* 临近段尾时进入预滚监视 */
     }
   });
   el.addEventListener("loadedmetadata", () => {
@@ -467,6 +546,9 @@ function onMediaEvent(el) {
     if (media !== el || !playing) return;
     if (!currentSlot.audio && queueIndex < queue.length - 1) {
       queueIndex += 1;
+      /* ended 冷路径接管：作废预滚（其回调有 prerollOn 守卫，不会二次交接） */
+      prerollOn = false;
+      clearInterval(prerollWatchTimer);
       /* 无缝接力：同步换轨（已预载+预热），零间隙零微任务延迟 */
       const old = media;
       media = standbyEl;
@@ -517,6 +599,8 @@ onMediaEvent(video2);
 onMediaEvent(audioEl);
 
 function finishSession() {
+  prerollOn = false;
+  clearInterval(prerollWatchTimer);
   if (currentSlot) finishedToday.add(finishKey(currentSlot));
   playing = false;
   liveMode = false;
