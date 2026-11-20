@@ -14,14 +14,16 @@
 const DEFAULT_SCHEDULE = [
   {
     id: "am", name: "早课 · 视频1", time: "05:30",
-    videos: ["test-media/am-i0.mp4", "test-media/am-b0.mp4", "test-media/am-p1.mp4", "test-media/am-p2.mp4", "test-media/am-e3.mp4"],
-    partDurations: [75.0, 1171.6, 1260, 1111.67, 119.86],
+    videos: ["test-media/am-i0.mp4", "test-media/ams-p0.mp4", "test-media/ams-p1.mp4", "test-media/ams-p2.mp4", "test-media/am-e3.mp4"],
+    partDurations: [75.0, 1308.77, 1311.42, 923.43, 119.86],
+    stripBg: "test-media/am-bg.jpg", stripFrom: 1, stripTo: 3,
     durationSec: 3738.13,
   },
   {
     id: "pm", name: "晚课 · 视频2", time: "20:00",
-    videos: ["test-media/pm-i0.mp4", "test-media/pm-b0.mp4", "test-media/pm-p1.mp4", "test-media/pm-p2.mp4", "test-media/pm-p3.mp4", "test-media/pm-p4.mp4", "test-media/pm-e4.mp4"],
-    partDurations: [90.1, 1405.1, 1470, 1470, 1470, 1328.0, 119.8],
+    videos: ["test-media/pm-i0.mp4", "test-media/pms-p0.mp4", "test-media/pms-p1.mp4", "test-media/pms-p2.mp4", "test-media/pms-p3.mp4", "test-media/pms-p4.mp4", "test-media/pms-p5.mp4", "test-media/pm-e4.mp4"],
+    partDurations: [90.1, 1309.05, 1303.28, 1304.18, 1303.19, 1303.18, 621.17, 119.8],
+    stripBg: "test-media/pm-bg.jpg", stripFrom: 1, stripTo: 6,
     durationSec: 7352.8,
   },
 ];
@@ -56,6 +58,7 @@ const vbPause = document.getElementById("vb-pause");
 const vbFill = document.getElementById("vb-fill");
 const vbTime = document.getElementById("vb-time");
 const bufferingEl = document.getElementById("buffering");
+const stripBgEl = document.getElementById("strip-bg");
 
 /* ---------- 状态 ---------- */
 let media = video;                 // 当前承载播放的元素
@@ -218,6 +221,27 @@ function prefetchUpcomingScenes(t) {
   }
 }
 
+/* ---------- 条带模式布局：分段落在 strip 区间时，上2/3显示高清静止图 ---------- */
+function applyStripLayout() {
+  if (!stripBgEl) return;
+  const s = currentSlot;
+  if (!s || !s.stripBg || !playing) {
+    playerWrap.classList.remove("strip-mode");
+    stripBgEl.hidden = true;
+    return;
+  }
+  const on = queueIndex >= (s.stripFrom || 0) && queueIndex <= (s.stripTo == null ? -1 : s.stripTo);
+  if (on) {
+    const url = new URL(s.stripBg, location.href).href;
+    if (stripBgEl.getAttribute("src") !== url) stripBgEl.src = url;
+    stripBgEl.hidden = false;
+    playerWrap.classList.add("strip-mode");
+  } else {
+    playerWrap.classList.remove("strip-mode");
+    stripBgEl.hidden = true;
+  }
+}
+
 /* ---------- 开始一场 ---------- */
 async function startPlay(slot, opts = {}) {
   playing = true;
@@ -304,6 +328,8 @@ async function startPlay(slot, opts = {}) {
       if (partIdx >= queue.length) { finishSession(); return; } /* 进场时本场已播完 */
     }
     queueIndex = partIdx;
+    if (slot.stripBg) { const p = new Image(); p.src = new URL(slot.stripBg, location.href).href; }
+    applyStripLayout();
     await playCurrentPart(offset);
   }
 }
@@ -392,6 +418,7 @@ function handoverToStandby() {
   setFrontEl(media);
   queueIndex += 1;
   playerState.textContent = queue.length > 1 ? `播放中 ${queueIndex + 1}/${queue.length}` : "播放中";
+  applyStripLayout();
   loadStandbyNext();
 }
 function maybePreroll() {
@@ -494,6 +521,7 @@ setInterval(() => {
         try { standbyEl.pause(); } catch (e) {}
       }
       queueIndex = idx;
+      applyStripLayout();
       swapToStandby().then(() => { playCurrentPart(offset); loadStandbyNext(); });
     } else if (isFinite(video.duration) && Math.abs(video.currentTime - offset) > 15) {
       video.currentTime = offset;
@@ -551,6 +579,7 @@ function onMediaEvent(el) {
       /* ended 冷路径接管：作废预滚（其回调有 prerollOn 守卫，不会二次交接） */
       prerollOn = false;
       clearInterval(prerollWatchTimer);
+      applyStripLayout();
       /* 无缝接力：同步换轨（已预载+预热），零间隙零微任务延迟 */
       const old = media;
       media = standbyEl;
@@ -603,6 +632,7 @@ onMediaEvent(audioEl);
 function finishSession() {
   prerollOn = false;
   clearInterval(prerollWatchTimer);
+  applyStripLayout();
   if (currentSlot) finishedToday.add(finishKey(currentSlot));
   playing = false;
   liveMode = false;

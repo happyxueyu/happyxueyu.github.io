@@ -19,6 +19,8 @@
 
     <!-- 内嵌播放器：待机时显示纯色待机屏（下一场信息），到点在此自动播放 -->
     <div id="player-wrap">
+      <!-- 静态背景层（条带模式：上2/3用高清静止图，视频只占下1/3字幕条） -->
+      <img id="strip-bg" alt="" hidden>
       <video id="video" playsinline webkit-playsinline
              x5-video-player-type="h5" x5-video-player-fullscreen="false"
              preload="auto" disablepictureinpicture></video>

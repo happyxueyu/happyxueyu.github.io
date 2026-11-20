@@ -95,6 +95,23 @@ a:hover { text-decoration: underline; }
 .v-front { opacity: 1 !important; }
 .v-back { opacity: 0 !important; }
 
+/* ---------- 条带模式：上2/3高清静止图 + 下1/3字幕条视频 ---------- */
+#strip-bg {
+  position: absolute;
+  left: 0; top: 0;
+  width: 100%; height: 66.67%;
+  object-fit: fill;
+  pointer-events: none;
+  z-index: 1;
+}
+#player-wrap.strip-mode #strip-bg { display: block; }
+#player-wrap.strip-mode #video,
+#player-wrap.strip-mode #video2 {
+  top: 66.67%;
+  height: 33.33%;
+  object-fit: fill;
+}
+
 /* ---------- 播放器待机层（纯色底 + 动态文字） ---------- */
 #player-standby {
   position: absolute;
