@@ -32,6 +32,7 @@ const SESSION_TAIL_SEC = 120; /* 结束后的缓冲窗口 */
 
 let SCHEDULE = DEFAULT_SCHEDULE;
 let GRACE_MIN = DEFAULT_GRACE_MIN;
+let MIRRORS = []; /* 备用线路基地址（config.json mirrors），主线路拥堵时轮换 */
 
 /* ---------- 元素 ---------- */
 const video = document.getElementById("video");
@@ -79,6 +80,50 @@ let frontStrip = stripA;           // 字幕条交叉淡入的前层
 let currentBgKey = "";             // 当前背景段标识
 let frontBg = bgSc;                // 背景交叉淡入的前层
 let soloMode = false;              // 当前背景段是否为整幅场景（片头/结尾，无字幕条）
+
+/* ---------- 线路与地址：baseIdx=0 用本站，之后轮换 mirrors ---------- */
+let baseIdx = 0;
+function mediaUrl(rel) {
+  if (baseIdx === 0 || !MIRRORS.length) return new URL(rel, location.href).href;
+  const m = MIRRORS[(baseIdx - 1) % MIRRORS.length];
+  return new URL(rel, m).href;
+}
+
+/* ---------- 卡死自愈看门狗：停顿>10s 自动换线路重连续播 ---------- */
+let stallSecs = 0;
+let stallLastPos = -1;
+setInterval(() => {
+  if (!playing) { stallSecs = 0; stallLastPos = -1; return; }
+  if (media.paused || media.ended || !media.src) { stallSecs = 0; return; }
+  const p = media.currentTime;
+  if (p > stallLastPos + 0.05) { stallLastPos = p; stallSecs = 0; return; }
+  stallSecs += 2;
+  if (stallSecs >= 10) {
+    stallSecs = 0;
+    recoverStall(p);
+  }
+}, 2000);
+function recoverStall(t) {
+  /* 中止预滚/待命，避免旧连接残留 */
+  prerollOn = false;
+  clearInterval(prerollWatchTimer);
+  standbyArmedIdx = -1;
+  try { standbyEl.pause(); } catch (e) {}
+  /* 轮换到下一条线路（本站 → mirrors 依次），带 cache-bust 重开连接 */
+  baseIdx = (baseIdx + 1) % (1 + Math.max(1, MIRRORS.length));
+  const which = baseIdx === 0 ? "主线路" : `备用线路 ${baseIdx}`;
+  showToast(`网络波动，已切换到${which}续播`, "info", 3000);
+  const wasMuted = media.muted;
+  const url = mediaUrl(queue[queueIndex] || (currentSlot && currentSlot.videos && currentSlot.videos[0]) || "");
+  media.src = url + (url.includes("?") ? "&" : "?") + "rs=" + Date.now();
+  const onMeta = () => {
+    media.removeEventListener("loadedmetadata", onMeta);
+    try { media.currentTime = Math.min(t, Math.max(0, (isFinite(media.duration) ? media.duration : t) - 0.3)); } catch (e) {}
+    media.muted = wasMuted;
+    media.play().catch(() => { media.muted = true; media.play().catch(() => {}); });
+  };
+  media.addEventListener("loadedmetadata", onMeta);
+}
 
 /* ---------- 时间工具 ---------- */
 function slotDate(slot, day) {
@@ -232,7 +277,7 @@ function applyStripLayout() {
   }
   const on = queueIndex >= (s.stripFrom || 0) && queueIndex <= (s.stripTo == null ? -1 : s.stripTo);
   if (on) {
-    const url = new URL(s.stripBg, location.href).href;
+    const url = mediaUrl(s.stripBg);
     if (stripBgEl.getAttribute("src") !== url) stripBgEl.src = url;
     stripBgEl.hidden = false;
     playerWrap.classList.add("strip-mode");
@@ -328,7 +373,8 @@ async function startPlay(slot, opts = {}) {
       if (partIdx >= queue.length) { finishSession(); return; } /* 进场时本场已播完 */
     }
     queueIndex = partIdx;
-    if (slot.stripBg) { const p = new Image(); p.src = new URL(slot.stripBg, location.href).href; }
+    standbyArmedIdx = -1;
+    if (slot.stripBg) { const p = new Image(); p.src = mediaUrl(slot.stripBg); }
     applyStripLayout();
     await playCurrentPart(offset);
   }
@@ -375,12 +421,19 @@ function setFrontEl(el) {
   el.classList.add("v-front"); el.classList.remove("v-back");
   other.classList.add("v-back"); other.classList.remove("v-front");
 }
-/* 后台预载下一段（音量/静音状态与前台同步） */
-function loadStandbyNext() {
+/* 后台预载下一段：临近段尾（剩余<90s）才开始，避免整段全速下载与前台抢带宽 */
+let standbyArmedIdx = -1; /* 已为哪个分段索引预载过待命段 */
+function loadStandbyNext(force = false) {
   if (!standbyEl || playing === false || !queue.length) return;
   const next = queue[queueIndex + 1];
   if (!next) return;
-  const url = new URL(next, location.href).href;
+  if (standbyArmedIdx === queueIndex) return; /* 本段已预载过 */
+  if (!force) {
+    if (!isFinite(media.duration)) return;
+    if (media.duration - media.currentTime > 90) return; /* 未到预载窗口：先让前台独占带宽 */
+  }
+  standbyArmedIdx = queueIndex;
+  const url = mediaUrl(next);
   if (standbyEl.src !== url) {
     standbyEl.muted = media.muted;
     standbyEl.volume = media.volume;
@@ -487,7 +540,7 @@ async function swapToStandby() {
 
 async function playCurrentPart(startAt = 0) {
   playerState.textContent = queue.length > 1 ? `播放中 ${queueIndex + 1}/${queue.length}` : "播放中";
-  const url = new URL(queue[queueIndex], location.href).href;
+  const url = mediaUrl(queue[queueIndex]);
   if (media.src !== url) media.src = queue[queueIndex]; /* 已预载则不重载 */
   if (startAt > 0) {
     media.addEventListener("loadedmetadata", () => { media.currentTime = startAt; }, { once: true });
@@ -544,28 +597,9 @@ function onMediaEvent(el) {
       prefetchUpcomingScenes(el.currentTime);
     }
     if (playing && media === el && queue.length > 1 && queueIndex < queue.length - 1) {
-      /* 礼貌预取：当前段已缓冲30秒以上（或临近段尾）才取下段，避免与播放抢带宽 */
-      let ahead = 0;
-      try {
-        const b = el.buffered;
-        for (let i = 0; i < b.length; i++) {
-          if (b.start(i) <= el.currentTime && el.currentTime < b.end(i)) {
-            ahead = b.end(i) - el.currentTime;
-            break;
-          }
-        }
-      } catch { /* 忽略 */ }
-      const fullyBuffered = ahead >= el.duration - el.currentTime - 2;
-      if (fullyBuffered || el.currentTime > el.duration - 20) {
-        /* 小段模式：空闲时连备两段，衔接更稳 */
-        for (let k = 1; k <= 2; k++) {
-          const p = queue[queueIndex + k];
-          if (p && !partsPrefetched.has(p)) {
-            partsPrefetched.add(p);
-            fetch(p).catch(() => partsPrefetched.delete(p));
-          }
-        }
-      }
+      /* 临近段尾（剩<90s）才让后台预载下一段：本段时间线内前台独占带宽，
+         避免预载全速下载抢带宽导致播放卡顿 */
+      loadStandbyNext();
       maybePreroll(); /* 临近段尾时进入预滚监视 */
     }
   });
@@ -632,6 +666,7 @@ onMediaEvent(audioEl);
 function finishSession() {
   prerollOn = false;
   clearInterval(prerollWatchTimer);
+  standbyArmedIdx = -1;
   applyStripLayout();
   if (currentSlot) finishedToday.add(finishKey(currentSlot));
   playing = false;
@@ -962,6 +997,7 @@ fetch(new Request("config.json", { cache: "no-store" }))
       SCHEDULE = cfg.schedule;
       GRACE_MIN = typeof cfg.graceMin === "number" && cfg.graceMin > 0 ? cfg.graceMin : DEFAULT_GRACE_MIN;
     }
+    if (cfg && Array.isArray(cfg.mirrors)) MIRRORS = cfg.mirrors.filter((m) => typeof m === "string" && m);
   })
   .catch(() => { /* 离线或缺失：使用默认 */ })
   .finally(initApp);

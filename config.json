@@ -53,5 +53,8 @@
       "stripFrom": 1,
       "stripTo": 6
     }
+  ],
+  "mirrors": [
+    "https://shouyueliang.github.io/"
   ]
 }
