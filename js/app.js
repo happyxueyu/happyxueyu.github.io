@@ -14,14 +14,14 @@
 const DEFAULT_SCHEDULE = [
   {
     id: "am", name: "早课 · 视频1", time: "05:30",
-    videos: ["test-media/am-p0.mp4", "test-media/am-p1.mp4", "test-media/am-p2.mp4"],
-    partDurations: [1246.67, 1260, 1231.47],
+    videos: ["test-media/am-i0.mp4", "test-media/am-b0.mp4", "test-media/am-p1.mp4", "test-media/am-p2.mp4", "test-media/am-e3.mp4"],
+    partDurations: [75.0, 1171.6, 1260, 1111.67, 119.86],
     durationSec: 3738.13,
   },
   {
     id: "pm", name: "晚课 · 视频2", time: "20:00",
-    videos: ["test-media/pm-p0.mp4", "test-media/pm-p1.mp4", "test-media/pm-p2.mp4", "test-media/pm-p3.mp4", "test-media/pm-p4.mp4"],
-    partDurations: [1495.05, 1470, 1470, 1470, 1447.8],
+    videos: ["test-media/pm-i0.mp4", "test-media/pm-b0.mp4", "test-media/pm-p1.mp4", "test-media/pm-p2.mp4", "test-media/pm-p3.mp4", "test-media/pm-p4.mp4", "test-media/pm-e4.mp4"],
+    partDurations: [90.1, 1405.1, 1470, 1470, 1470, 1328.0, 119.8],
     durationSec: 7352.8,
   },
 ];
