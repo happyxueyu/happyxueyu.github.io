@@ -82,12 +82,22 @@ let currentBgKey = "";             // 当前背景段标识
 let frontBg = bgSc;                // 背景交叉淡入的前层
 let soloMode = false;              // 当前背景段是否为整幅场景（片头/结尾，无字幕条）
 
-/* ---------- 线路与地址：baseIdx=0 用本站，之后轮换 mirrors ---------- */
+/* ---------- 线路与地址：本站在首位，mirrors 依次补充；轮换时跳过自身 ---------- */
 let baseIdx = 0;
+function lineOrigins() {
+  const list = [location.origin];
+  for (const m of MIRRORS) {
+    try {
+      const o = new URL(m).origin;
+      if (o !== location.origin && !list.includes(o)) list.push(o);
+    } catch (e) { /* 忽略无效镜像 */ }
+  }
+  return list;
+}
 function mediaUrl(rel) {
-  if (baseIdx === 0 || !MIRRORS.length) return new URL(rel, location.href).href;
-  const m = MIRRORS[(baseIdx - 1) % MIRRORS.length];
-  return new URL(rel, m).href;
+  const bases = lineOrigins();
+  const b = bases[Math.min(baseIdx, bases.length - 1)] || bases[0];
+  return new URL(rel, b + "/").href;
 }
 
 /* ---------- 卡死/龟速自愈看门狗：完全停顿>10s，或30s内进度<5s（龟速）→ 换线路重连续播 ---------- */
@@ -114,8 +124,8 @@ function recoverStall(t) {
   standbyArmedIdx = -1;
   try { standbyEl.pause(); } catch (e) {}
   freezeStripFrame(media); /* 垫住字幕条，重连期间画面完整 */
-  /* 轮换到下一条线路（本站 → mirrors 依次），带 cache-bust 重开连接 */
-  baseIdx = (baseIdx + 1) % (1 + Math.max(1, MIRRORS.length));
+  /* 轮换到下一条线路（跳过自身之外的可用线路），带 cache-bust 重开连接 */
+  baseIdx = (baseIdx + 1) % Math.max(1, lineOrigins().length);
   const which = baseIdx === 0 ? "主线路" : `备用线路 ${baseIdx}`;
   showToast(`网络波动，已切换到${which}续播`, "info", 3000);
   const wasMuted = media.muted;

@@ -55,6 +55,7 @@
     }
   ],
   "mirrors": [
-    "https://shouyueliang.github.io/"
+    "https://shouyueliang.github.io/",
+    "https://shouyueliang.pages.dev/"
   ]
 }
