@@ -959,6 +959,35 @@ function tick() {
   counterTick();
 }
 
+/* ---------- 一键添加到手机桌面（安卓 beforeinstallprompt；iOS/微信给指引） ---------- */
+const installBtn = document.getElementById("install-btn");
+let installPromptEvent = null;
+const standaloneMode = () => window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+window.addEventListener("beforeinstallprompt", (e) => {
+  if (standaloneMode()) return; /* 已安装过 */
+  e.preventDefault();
+  installPromptEvent = e;
+  installBtn.hidden = false;
+});
+installBtn.addEventListener("click", async () => {
+  if (installPromptEvent) {
+    installPromptEvent.prompt();
+    const choice = await installPromptEvent.userChoice.catch(() => null);
+    installPromptEvent = null;
+    if (choice && choice.outcome === "accepted") {
+      installBtn.hidden = true;
+      showToast("已添加到桌面 🎉", "ok");
+    }
+    return;
+  }
+  /* 平台不支持一键安装：给出对应指引 */
+  const ua = navigator.userAgent;
+  if (/MicroMessenger/i.test(ua)) showToast("微信内请点右上角 ··· → 在浏览器打开，再试一次", "info", 5000);
+  else if (/iPhone|iPad|iPod/i.test(ua)) showToast("请点 Safari 底部「分享」按钮 → 添加到主屏幕", "info", 5000);
+  else showToast("请用浏览器菜单中的「添加到主屏幕 / 安装应用」", "info", 5000);
+});
+window.addEventListener("appinstalled", () => { installBtn.hidden = true; });
+
 /* ---------- 刷新按钮 ---------- */
 document.getElementById("refresh-btn").addEventListener("click", () => location.reload());
 
