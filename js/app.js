@@ -722,6 +722,9 @@ function finishSession() {
   playerState.textContent = "待机";
   showToast("本场播放已结束", "ok");
   updateUI();
+  if (typeof swReloadPending !== "undefined" && swReloadPending) {
+    setTimeout(() => location.reload(), 1500); /* 推迟的版本更新此刻生效 */
+  }
 }
 
 /* 禁止手动控制入口 */
@@ -1128,9 +1131,13 @@ if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
     navigator.serviceWorker.register("sw.js").catch(() => {});
   });
   let swReloaded = false;
+  let swReloadPending = false; /* 播放中遇到更新：推迟到本场结束再刷新 */
   navigator.serviceWorker.addEventListener("controllerchange", () => {
-    if (!swReloaded && navigator.serviceWorker.controller) {
-      swReloaded = true;
+    if (swReloaded || !navigator.serviceWorker.controller) return;
+    swReloaded = true;
+    if (playing) {
+      swReloadPending = true; /* 不打断播放，结束后再刷新 */
+    } else {
       location.reload();
     }
   });

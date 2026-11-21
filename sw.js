@@ -5,7 +5,7 @@
    ========================================================== */
 "use strict";
 
-const CACHE = "jjq-toolbox-v30";
+const CACHE = "jjq-toolbox-v31";
 const PRECACHE = [
   "./",
   "./index.html",
