@@ -89,17 +89,20 @@ function mediaUrl(rel) {
   return new URL(rel, m).href;
 }
 
-/* ---------- 卡死自愈看门狗：停顿>10s 自动换线路重连续播 ---------- */
-let stallSecs = 0;
-let stallLastPos = -1;
+/* ---------- 卡死/龟速自愈看门狗：完全停顿>10s，或30s内进度<5s（龟速）→ 换线路重连续播 ---------- */
+let stallTicks = []; /* [{t:墙钟ms, p:播放位置}] 滑动窗口 */
 setInterval(() => {
-  if (!playing) { stallSecs = 0; stallLastPos = -1; return; }
-  if (media.paused || media.ended || !media.src) { stallSecs = 0; return; }
+  if (!playing) { stallTicks = []; return; }
+  if (media.paused || media.ended || !media.src) { stallTicks = []; return; }
+  const now = Date.now();
   const p = media.currentTime;
-  if (p > stallLastPos + 0.05) { stallLastPos = p; stallSecs = 0; return; }
-  stallSecs += 2;
-  if (stallSecs >= 10) {
-    stallSecs = 0;
+  stallTicks.push({ t: now, p });
+  while (stallTicks.length && now - stallTicks[0].t > 30500) stallTicks.shift();
+  const first = stallTicks[0];
+  const spanMs = now - first.t;
+  const prog = p - first.p;
+  if (spanMs >= 30000 && prog < 5) { /* 30 秒只走了不到 5 秒：龟速/停顿，换线 */
+    stallTicks = [];
     recoverStall(p);
   }
 }, 2000);
