@@ -469,21 +469,20 @@ a:hover { text-decoration: underline; }
 }
 #refresh-btn:hover { color: var(--text); border-color: var(--border-strong); transform: rotate(180deg); }
 
-/* ---------- 添加至手机桌面按钮 ---------- */
+/* ---------- 添加至手机桌面按钮（小巧，不抢视觉） ---------- */
 #install-btn {
-  margin: 10px auto 0;
+  margin: 6px auto 0;
   display: block;
-  padding: 10px 26px;
+  padding: 5px 14px;
   border-radius: 999px;
-  border: 1px solid var(--border-strong);
-  background: rgba(240, 225, 72, 0.12);
-  color: var(--text);
-  font-size: 15px;
-  font-weight: 600;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  font-size: 12.5px;
   cursor: pointer;
   transition: 0.2s;
 }
-#install-btn:hover { background: rgba(240, 225, 72, 0.22); }
+#install-btn:hover { color: var(--text); border-color: var(--border-strong); }
 
 /* ---------- 全屏按钮（vbar 内，可点） ---------- */
 #fs-btn {
