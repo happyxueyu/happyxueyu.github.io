@@ -60,6 +60,7 @@ const vbFill = document.getElementById("vb-fill");
 const vbTime = document.getElementById("vb-time");
 const bufferingEl = document.getElementById("buffering");
 const stripBgEl = document.getElementById("strip-bg");
+const stripFreezeCv = document.getElementById("strip-freeze");
 
 /* ---------- 状态 ---------- */
 let media = video;                 // 当前承载播放的元素
@@ -112,6 +113,7 @@ function recoverStall(t) {
   clearInterval(prerollWatchTimer);
   standbyArmedIdx = -1;
   try { standbyEl.pause(); } catch (e) {}
+  freezeStripFrame(media); /* 垫住字幕条，重连期间画面完整 */
   /* 轮换到下一条线路（本站 → mirrors 依次），带 cache-bust 重开连接 */
   baseIdx = (baseIdx + 1) % (1 + Math.max(1, MIRRORS.length));
   const which = baseIdx === 0 ? "主线路" : `备用线路 ${baseIdx}`;
@@ -268,6 +270,26 @@ function prefetchUpcomingScenes(t) {
     }
   }
 }
+
+/* ---------- 字幕条冻结帧：加载/换线期间用画布垫住下1/3，画面不缺角 ---------- */
+function freezeStripFrame(el) {
+  if (!stripFreezeCv || !playerWrap.classList.contains("strip-mode")) return;
+  try {
+    const vw = el.videoWidth, vh = el.videoHeight;
+    if (!vw || !vh) return;
+    stripFreezeCv.width = 854; stripFreezeCv.height = 160;
+    const ctx = stripFreezeCv.getContext("2d");
+    if (vh / vw > 0.21) {
+      /* 全画面视频（片头片尾）：截取其下1/3 */
+      ctx.drawImage(el, 0, vh * 2 / 3, vw, vh / 3, 0, 0, 854, 160);
+    } else {
+      /* 已是条带视频：整幅 */
+      ctx.drawImage(el, 0, 0, vw, vh, 0, 0, 854, 160);
+    }
+    stripFreezeCv.hidden = false;
+  } catch (e) { /* 跨域画布污染等：忽略，退回原有表现 */ }
+}
+function clearStripFreeze() { if (stripFreezeCv) stripFreezeCv.hidden = true; }
 
 /* ---------- 条带模式布局：分段落在 strip 区间时，上2/3显示高清静止图 ---------- */
 function applyStripLayout() {
@@ -616,6 +638,7 @@ function onMediaEvent(el) {
       /* ended 冷路径接管：作废预滚（其回调有 prerollOn 守卫，不会二次交接） */
       prerollOn = false;
       clearInterval(prerollWatchTimer);
+      freezeStripFrame(media); /* 冷切换加载期间垫住字幕条 */
       applyStripLayout();
       /* 无缝接力：同步换轨（已预载+预热），零间隙零微任务延迟 */
       const old = media;
@@ -655,6 +678,7 @@ function onMediaEvent(el) {
   el.addEventListener("stalled", () => { if (media === el) setBuffering(true); });
   el.addEventListener("playing", () => {
     if (media !== el) return;
+    clearStripFreeze(); /* 新画面真正出图，撤掉冻结帧 */
     setBuffering(false);
     startBtn.hidden = true;
     playerWrap.classList.remove("preload-visual"); /* 正式开场：字幕/光芒/推镜一起启动 */
@@ -670,6 +694,7 @@ function finishSession() {
   prerollOn = false;
   clearInterval(prerollWatchTimer);
   standbyArmedIdx = -1;
+  clearStripFreeze();
   applyStripLayout();
   if (currentSlot) finishedToday.add(finishKey(currentSlot));
   playing = false;

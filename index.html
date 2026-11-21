@@ -21,6 +21,8 @@
     <div id="player-wrap">
       <!-- 静态背景层（条带模式：上2/3用高清静止图，视频只占下1/3字幕条） -->
       <img id="strip-bg" alt="" hidden>
+      <!-- 字幕条冻结帧：换线重连/换段加载期间垫住下1/3，避免露出空白 -->
+      <canvas id="strip-freeze" hidden></canvas>
       <video id="video" playsinline webkit-playsinline
              x5-video-player-type="h5" x5-video-player-fullscreen="false"
              preload="auto" disablepictureinpicture></video>
