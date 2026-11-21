@@ -80,6 +80,10 @@ a:hover { text-decoration: underline; }
   margin: 16px 0 18px;
   box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
 }
+/* 老内核（百度/夸克等 T5 内核）不支持 aspect-ratio：用 padding-top 撑出 16:9 */
+@supports not (aspect-ratio: 1) {
+  #player-wrap { aspect-ratio: auto; height: 0; padding-top: 56.25%; }
+}
 
 /* 双播放器：前台播放/后台预载，切换零间隙不闪黑 */
 #video, #video2 {

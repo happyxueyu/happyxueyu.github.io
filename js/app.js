@@ -141,8 +141,8 @@ function dayKey(day) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 function playedKey(slot) { return `jjq_played_${slot.id}_${dayKey()}`; }
-function isPlayed(slot) { try { return localStorage.getItem(playedKey(slot)) === "1"; } catch { return false; } }
-function markPlayed(slot) { try { localStorage.setItem(playedKey(slot), "1"); } catch { /* 忽略 */ } }
+function isPlayed(slot) { try { return localStorage.getItem(playedKey(slot)) === "1"; } catch (e) { return false; } }
+function markPlayed(slot) { try { localStorage.setItem(playedKey(slot), "1"); } catch (e) { /* 忽略 */ } }
 function sessionDurationSec(slot) {
   if (typeof slot.durationSec === "number" && slot.durationSec > 0) return slot.durationSec;
   if (isFinite(media.duration) && media.duration > 0) return media.duration;
@@ -408,9 +408,9 @@ async function startPlay(slot, opts = {}) {
 const startBtn = document.getElementById("start-btn");
 async function tryPlay(el) {
   let started = false;
-  try { await el.play(); started = true; } catch { /* 尝试静音 */ }
+  try { await el.play(); started = true; } catch (e) { /* 尝试静音 */ }
   if (!started) {
-    try { el.muted = true; await el.play(); started = true; } catch { /* 静音也被禁 */ }
+    try { el.muted = true; await el.play(); started = true; } catch (e) { /* 静音也被禁 */ }
   }
   if (!started) {
     /* 明确被拒：直接给手动按钮 */
@@ -431,7 +431,7 @@ startBtn.addEventListener("click", async () => {
   startBtn.hidden = true;
   try {
     await media.play();
-  } catch {
+  } catch (e) {
     media.muted = true;
     media.play().catch(() => {});
   }
@@ -673,7 +673,7 @@ function onMediaEvent(el) {
           break;
         }
       }
-    } catch { /* 忽略 */ }
+    } catch (e) { /* 忽略 */ }
   });
   el.addEventListener("stalled", () => { if (media === el) setBuffering(true); });
   el.addEventListener("playing", () => {
@@ -704,7 +704,7 @@ function finishSession() {
   currentSceneKey = "";
   media.pause();
   video2.pause();
-  try { media.currentTime = 0; } catch { /* 忽略 */ }
+  try { media.currentTime = 0; } catch (e) { /* 忽略 */ }
   media.muted = false;
   unmuteBtn.hidden = true;
   startBtn.hidden = true;
@@ -796,9 +796,9 @@ document.addEventListener("click", async () => {
     try {
       await media.play();
       media.pause();
-      try { media.currentTime = 0; } catch { /* 忽略 */ }
+      try { media.currentTime = 0; } catch (e) { /* 忽略 */ }
       showToast("已就绪：到点将自动有声播放", "ok", 2000);
-    } catch { /* 忽略 */ }
+    } catch (e) { /* 忽略 */ }
   }
 });
 
@@ -812,7 +812,7 @@ async function requestWakeLock() {
     } else {
       wakeHint.textContent = "当前浏览器不支持屏幕常亮，建议手动设置设备不休眠";
     }
-  } catch {
+  } catch (e) {
     wakeHint.textContent = "屏幕常亮开启失败，建议手动设置设备不休眠";
   }
 }
@@ -1007,7 +1007,7 @@ function updateFsUI() {
 }
 async function exitFullscreenMode() {
   if (document.fullscreenElement) {
-    try { await document.exitFullscreen(); } catch { /* 忽略 */ }
+    try { await document.exitFullscreen(); } catch (e) { /* 忽略 */ }
   }
   fakeFs = false;
   document.body.classList.remove("fs-fake");
@@ -1022,7 +1022,7 @@ async function toggleFullscreen() {
         screen.orientation.lock("landscape").catch(() => {});
       }
       return;
-    } catch { /* 退回伪全屏 */ }
+    } catch (e) { /* 退回伪全屏 */ }
   }
   fakeFs = true;
   document.body.classList.add("fs-fake");
@@ -1090,9 +1090,9 @@ function counterTick() {
   if (w) {
     const flag = "jjq_counted_" + counterKey(w, new Date());
     let counted = false;
-    try { counted = localStorage.getItem(flag) === "1"; } catch { /* 忽略 */ }
+    try { counted = localStorage.getItem(flag) === "1"; } catch (e) { /* 忽略 */ }
     if (!counted) {
-      try { localStorage.setItem(flag, "1"); } catch { /* 忽略 */ }
+      try { localStorage.setItem(flag, "1"); } catch (e) { /* 忽略 */ }
       fetch(`${ABACUS}/hit/${ABACUS_NS}/${counterKey(w, new Date())}`).catch(() => {}).finally(refreshCounts);
     }
   }
@@ -1113,7 +1113,7 @@ async function refreshCounts() {
       const r = await fetch(`${ABACUS}/get/${ABACUS_NS}/${counterKey(w, day)}`, { cache: "no-store" });
       const j = await r.json();
       return { w, n: j.value || 0 };
-    } catch { return { w, n: null }; }
+    } catch (e) { return { w, n: null }; }
   }));
   counterEl.hidden = false;
   counterEl.textContent = "";
