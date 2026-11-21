@@ -328,7 +328,7 @@ a:hover { text-decoration: underline; }
 /* ---------- 到访统计 ---------- */
 #visit-count { color: var(--text); font-variant-numeric: tabular-nums; }
 #visit-count .cnt {
-  color: #fff;
+  color: var(--accent-2); /* 与场次时间同色（蓝） */
   font-size: 15px;
   font-weight: 800;
   padding: 0 1px;
@@ -343,7 +343,7 @@ a:hover { text-decoration: underline; }
   animation: live-pulse 1.4s infinite;
   vertical-align: middle;
 }
-.live-num { color: var(--ok); font-weight: 600; }
+.live-num { color: var(--accent-2); font-weight: 600; }
 @keyframes live-pulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.6); }
   50% { box-shadow: 0 0 0 5px rgba(52, 211, 153, 0); }
