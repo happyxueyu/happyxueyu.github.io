@@ -5,7 +5,7 @@
    ========================================================== */
 "use strict";
 
-const CACHE = "jjq-toolbox-v31";
+const CACHE = "jjq-toolbox-v32";
 const PRECACHE = [
   "./",
   "./index.html",
@@ -34,15 +34,19 @@ self.addEventListener("activate", (e) => {
   );
 });
 
-/* 文档/代码类：网络优先（保证更新传播），失败回退缓存（离线可用） */
-function networkFirst(request) {
-  return fetch(request).then((res) => {
-    if (res.ok) {
-      const copy = res.clone();
-      caches.open(CACHE).then((c) => c.put(request, copy));
-    }
-    return res;
-  }).catch(() => caches.match(request).then((hit) => hit || Response.error()));
+/* 文档/代码类：缓存优先秒开 + 后台静默更新（stale-while-revalidate）。
+   原网络优先在线路拥堵时会让页面挂住几十秒白屏 */
+function staleWhileRevalidate(request) {
+  return caches.match(request).then((hit) => {
+    const bg = fetch(request).then((res) => {
+      if (res.ok) {
+        const copy = res.clone();
+        caches.open(CACHE).then((c) => c.put(request, copy));
+      }
+      return res;
+    }).catch(() => null);
+    return hit || bg || Response.error();
+  });
 }
 
 /* 大文件（视频/图片）：缓存优先 */
@@ -70,7 +74,7 @@ self.addEventListener("fetch", (e) => {
     url.pathname === "./" || url.pathname === "/";
 
   if (isDocLike) {
-    e.respondWith(networkFirst(e.request));
+    e.respondWith(staleWhileRevalidate(e.request));
   } else {
     e.respondWith(cacheFirst(e.request).catch(() => {
       if (e.request.mode === "navigate") return caches.match("./index.html");

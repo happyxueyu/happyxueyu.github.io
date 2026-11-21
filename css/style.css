@@ -133,7 +133,8 @@ a:hover { text-decoration: underline; }
   padding: 12px;
   transition: opacity 0.4s ease;
 }
-#player-wrap.playing #player-standby { opacity: 0; pointer-events: none; }
+/* 待机层：视频真正出画面（started）才淡出，加载等待期间保持黄底提示 */
+#player-wrap.started #player-standby { opacity: 0; pointer-events: none; }
 
 #player-standby img {
   width: 88px;

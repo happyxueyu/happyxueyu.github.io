@@ -679,6 +679,7 @@ function onMediaEvent(el) {
   el.addEventListener("playing", () => {
     if (media !== el) return;
     clearStripFreeze(); /* 新画面真正出图，撤掉冻结帧 */
+    playerWrap.classList.add("started"); /* 真正出画面：待机黄底此刻才淡出 */
     setBuffering(false);
     startBtn.hidden = true;
     playerWrap.classList.remove("preload-visual"); /* 正式开场：字幕/光芒/推镜一起启动 */
@@ -707,7 +708,7 @@ function finishSession() {
   media.muted = false;
   unmuteBtn.hidden = true;
   startBtn.hidden = true;
-  playerWrap.classList.remove("playing", "audio-mode", "preload-visual");
+  playerWrap.classList.remove("playing", "audio-mode", "preload-visual", "started");
   stripA.classList.remove("show");
   stripB.classList.remove("show");
   bgSc.classList.remove("show");
